@@ -1,0 +1,63 @@
+==============================================
+HSMC 2026 A - Q1 Data Audit
+MATLAB R2016a
+==============================================
+
+Group 1
+Worksheet: ื้1
+Records: 12
+Full-length records: 2
+Short records: 10
+Minimum length: 1019.11725459342
+Maximum length: 5000
+Mean length: 2854.12450139187
+Median length: 2566.13973906507
+Direction families: 7
+XMin contacts: 3
+XMax contacts: 4
+YMin contacts: 0
+YMax contacts: 0
+ZMin contacts: 0
+ZMax contacts: 0
+Boundary pairing candidates: 3
+----------------------------------------------
+
+Group 2
+Worksheet: ื้2
+Records: 49
+Full-length records: 11
+Short records: 38
+Minimum length: 577.473950139756
+Maximum length: 5000.00000000001
+Mean length: 2841.45235197487
+Median length: 2677.26381858866
+Direction families: 28
+XMin contacts: 11
+XMax contacts: 11
+YMin contacts: 0
+YMax contacts: 0
+ZMin contacts: 0
+ZMax contacts: 0
+Boundary pairing candidates: 10
+----------------------------------------------
+
+Group 3
+Worksheet: ื้3
+Records: 535
+Full-length records: 155
+Short records: 380
+Minimum length: 525.697382049068
+Maximum length: 5000.00000000001
+Mean length: 3282.29042045273
+Median length: 3696.90963175142
+Direction families: 354
+XMin contacts: 91
+XMax contacts: 90
+YMin contacts: 61
+YMax contacts: 57
+ZMin contacts: 51
+ZMax contacts: 60
+Boundary pairing candidates: 178
+
+==============================================
+V0 DATA AUDIT COMPLETE
