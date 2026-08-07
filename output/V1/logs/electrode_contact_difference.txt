@@ -1,0 +1,11 @@
+Group3 V0 XMin contact versus V1 LEFT contact audit
+V0 XMin endpoint-contact records: 91
+V1 finite-cylinder LEFT-contact records: 92
+Extra RecordID: 92
+P1 = [-4995.91838936805, 1956.76737973369, 1769.17430952256] nm
+P2 = [-4139.83987317681, 148.224702947496, 5000] nm
+Axis endpoint-to-LEFT distance = 4.08161063194984 nm
+Radius projection along x = 29.2288999105677 nm
+Finite-cylinder solid-to-LEFT distance = 0 nm
+Conduction threshold D0 = 1.8 nm
+Conclusion: the axis does not meet the 1.8 nm electrode threshold, but the 30 nm cylinder radius extends the solid to/across LEFT; the 91-to-92 difference is caused by finite radius, not an extra endpoint on x=-5000.

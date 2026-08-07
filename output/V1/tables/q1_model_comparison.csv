@@ -1,0 +1,10 @@
+Group,Model,PieceCount,ParentCount,CandidateGeometryPairs,ExactEdges,LeftContactParents,RightContactParents,Conducting,PathLength,Path
+1,M0,12,12,2,2,3,4,0,0,
+1,M1,12,9,2,2,3,4,1,2,LEFT -> P1 -> RIGHT
+1,M2,12,7,2,2,3,4,1,2,LEFT -> P1 -> RIGHT
+2,M0,49,49,27,27,11,11,1,5,LEFT -> P2 -> P12 -> P24 -> P39 -> RIGHT
+2,M1,49,39,27,26,11,11,1,2,LEFT -> P1 -> RIGHT
+2,M2,49,28,27,26,11,11,1,2,LEFT -> P1 -> RIGHT
+3,M0,535,535,166,165,92,90,1,5,LEFT -> P63 -> P264 -> P216 -> P351 -> RIGHT
+3,M1,535,357,166,165,92,90,1,2,LEFT -> P2 -> RIGHT
+3,M2,535,354,166,165,92,90,1,2,LEFT -> P2 -> RIGHT

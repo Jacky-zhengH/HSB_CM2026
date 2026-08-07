@@ -1,0 +1,31 @@
+============================================================
+HSMC 2026 A - Q1 V1 Validation Summary
+MATLAB R2016a (9.0.0.341360)
+============================================================
+V0 record review: Group1=12, Group2=49, Group3=535.
+GJK all unit tests passed: 1
+Capsule/GJK disagreements: 3 model rows; 1 unique GeometryPiece pairs.
+Optional q1_results.xlsx written: 1
+------------------------------------------------------------
+Group 1
+Direction families: 7; near 5000 nm: 5
+M0 Parents=12 Conducting=0 DirectParent=0 Path=
+M1 Parents=9 Conducting=1 DirectParent=1 Path=LEFT -> P1 -> RIGHT
+M2 Parents=7 Conducting=1 DirectParent=1 Path=LEFT -> P1 -> RIGHT
+------------------------------------------------------------
+Group 2
+Direction families: 28; near 5000 nm: 24
+M0 Parents=49 Conducting=1 DirectParent=0 Path=LEFT -> P2 -> P12 -> P24 -> P39 -> RIGHT
+M1 Parents=39 Conducting=1 DirectParent=1 Path=LEFT -> P1 -> RIGHT
+M2 Parents=28 Conducting=1 DirectParent=1 Path=LEFT -> P1 -> RIGHT
+------------------------------------------------------------
+Group 3
+Direction families: 354; near 5000 nm: 305
+M0 Parents=535 Conducting=1 DirectParent=0 Path=LEFT -> P63 -> P264 -> P216 -> P351 -> RIGHT
+M1 Parents=357 Conducting=1 DirectParent=1 Path=LEFT -> P2 -> RIGHT
+M2 Parents=354 Conducting=1 DirectParent=1 Path=LEFT -> P2 -> RIGHT
+------------------------------------------------------------
+Model uncertainty: M0 is record-independent; M1 uses only V0 boundary pair candidates; M2 groups complete direction families.
+No model is declared the unique attachment interpretation. No global periodic geometry images were used.
+============================================================
+V1 Q1 VALIDATION COMPLETE
