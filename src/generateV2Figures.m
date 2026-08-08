@@ -5,6 +5,7 @@ function generateV2Figures(groups, analyses, r1Results, r2Results, ...
 drawRawLengths(analyses, cfg, figureDir);
 drawR1Counts(r1Results, figureDir);
 drawReconstructionExamples(groups, analyses, r1Results, r2Results, cfg, figureDir);
+drawR3MultiBoundaryExample(cfg, figureDir);
 drawNoHiddenDemo(noHiddenResult, noHiddenPieces, cfg, figureDir);
 for groupIndex = 1:3
     if ~isempty(modelResults{groupIndex, 1})
@@ -12,6 +13,54 @@ for groupIndex = 1:3
             modelResults{groupIndex, 1}, cfg, figureDir);
     end
 end
+end
+
+function drawR3MultiBoundaryExample(cfg, figureDir)
+originalStart = [4000 3000 0];
+originalEnd = [7000 7000 0];
+wrapped = wrapSegmentToBox(originalStart, originalEnd, cfg.HALF_L, ...
+    cfg.L, cfg.reconstructionTolerance);
+middleStart = wrapped.Start(2, :);
+middleEnd = wrapped.End(2, :);
+reconstruction = reconstructRowR3(middleStart, middleEnd, cfg);
+
+figureHandle = figure('Visible', 'off', 'Color', 'w', ...
+    'Position', [100 100 1300 520]);
+subplot(1, 2, 1); hold on;
+plot3([originalStart(1) originalEnd(1)], [originalStart(2) originalEnd(2)], ...
+    [originalStart(3) originalEnd(3)], 'k-', 'LineWidth', 3);
+plot3([5000 5000], [2500 7500], [0 0], 'b--', 'LineWidth', 1.5);
+plot3([3500 7500], [5000 5000], [0 0], 'r--', 'LineWidth', 1.5);
+for pieceIndex = 1:size(wrapped.Start, 1)
+    plot3([wrapped.Start(pieceIndex, 1) wrapped.End(pieceIndex, 1)], ...
+        [wrapped.Start(pieceIndex, 2) wrapped.End(pieceIndex, 2)], ...
+        [wrapped.Start(pieceIndex, 3) wrapped.End(pieceIndex, 3)], ...
+        'o-', 'LineWidth', 2);
+end
+hold off; axis equal; grid on; view(2);
+xlabel('x / nm'); ylabel('y / nm');
+title({'5000 nm original cylinder: X then Y', ...
+    'Forward wrapping produces 3 GeometryPieces'});
+
+subplot(1, 2, 2); hold on; drawBox(cfg.HALF_L);
+for pieceIndex = 1:size(wrapped.Start, 1)
+    if pieceIndex == 2, color = [0.85 0.05 0.05]; width = 4;
+    else, color = [0.65 0.65 0.65]; width = 2; end
+    plot3([wrapped.Start(pieceIndex, 1) wrapped.End(pieceIndex, 1)], ...
+        [wrapped.Start(pieceIndex, 2) wrapped.End(pieceIndex, 2)], ...
+        [wrapped.Start(pieceIndex, 3) wrapped.End(pieceIndex, 3)], ...
+        '-', 'Color', color, 'LineWidth', width);
+end
+hold off; axis equal; grid on; view(3);
+xlabel('x / nm'); ylabel('y / nm'); zlabel('z / nm');
+title({sprintf('Only middle Piece supplied to R3: %s', reconstruction.Status), ...
+    sprintf('%d forward-validated candidates; no forced selection', ...
+    reconstruction.CandidateCount)});
+
+print(figureHandle, fullfile(figureDir, 'r3_multiboundary_example.png'), ...
+    '-dpng', '-r300');
+savefig(figureHandle, fullfile(figureDir, 'r3_multiboundary_example.fig'));
+close(figureHandle);
 end
 
 function drawRawLengths(analyses, cfg, figureDir)

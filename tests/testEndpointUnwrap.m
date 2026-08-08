@@ -17,6 +17,16 @@ ok = any(all(bsxfun(@eq, validK, [1 0 0]), 2));
 passed = passed && ok;
 lines{end + 1} = sprintf('R1 recognizes k=[1,0,0] candidate: PASS=%d', ok);
 
+multiAxis = enumerateEndpointUnwrap([4000 4000 0], [-3000 -2000 0], ...
+    10000, 5000, 1e-6);
+validK = multiAxis.K(multiAxis.ValidIndices, :);
+ok = size(multiAxis.K, 1) == 27 && ...
+    size(unique(multiAxis.K, 'rows'), 1) == 27 && ...
+    any(all(bsxfun(@eq, validK, [1 1 0]), 2));
+passed = passed && ok;
+lines{end + 1} = sprintf( ...
+    'R1 keeps all 27 k combinations and simultaneous X/Y unwrap: PASS=%d', ok);
+
 failure = enumerateEndpointUnwrap([0 0 0], [1000 0 0], 10000, 5000, 1e-6);
 ok = strcmp(failure.Status, 'NO_ENDPOINT_UNWRAP') && failure.CandidateCount == 0;
 passed = passed && ok;

@@ -28,7 +28,7 @@ for index = 1:numel(directories)
     if exist(directories{index}, 'dir') ~= 7, mkdir(directories{index}); end
 end
 
-fprintf('[1/9] Loading attachment under the one-row-one-medium rule...\n');
+fprintf('[1/10] Loading attachment under the one-row-one-medium rule...\n');
 groups = loadGroupData(fullfile(projectRoot, 'data', 'attachment.xlsx'));
 expectedCounts = [12 49 535];
 actualCounts = zeros(1, numel(groups));
@@ -38,7 +38,7 @@ if numel(groups) ~= 3 || ~isequal(actualCounts, expectedCounts)
         'Expected [12 49 535], read [%s].', sprintf('%d ', actualCounts));
 end
 
-fprintf('[2/9] Computing R0 raw audit and coordinate anomaly counts...\n');
+fprintf('[2/10] Computing R0 raw audit and coordinate anomaly counts...\n');
 analyses = cell(1, 3);
 coordinateCounts = zeros(3, 4); % +500,-500,+5000,-5000
 for groupIndex = 1:3
@@ -62,7 +62,7 @@ for groupIndex = 1:3
 end
 fclose(fileID);
 
-fprintf('[3/9] Enumerating R1 same-row endpoint unwrap candidates...\n');
+fprintf('[3/10] Enumerating R1 same-row endpoint unwrap candidates...\n');
 r1Results = cell(1, 3);
 for groupIndex = 1:3
     r1Results{groupIndex} = cell(analyses{groupIndex}.Records, 1);
@@ -73,7 +73,7 @@ for groupIndex = 1:3
     end
 end
 
-fprintf('[4/9] Testing R2 finite same-row reconstructions by forward wrapping...\n');
+fprintf('[4/10] Testing R2 finite same-row reconstructions by forward wrapping...\n');
 r2Results = cell(1, 3);
 for groupIndex = 1:3
     r2Results{groupIndex} = cell(analyses{groupIndex}.Records, 1);
@@ -83,15 +83,27 @@ for groupIndex = 1:3
     end
 end
 
-fprintf('[5/9] Running reconstruction, geometry, and no-hidden-wire tests...\n');
+fprintf('[5/10] Testing R3 multi-boundary same-row reconstructions...\n');
+r3Results = cell(1, 3);
+for groupIndex = 1:3
+    r3Results{groupIndex} = cell(analyses{groupIndex}.Records, 1);
+    for mediumID = 1:analyses{groupIndex}.Records
+        r3Results{groupIndex}{mediumID} = reconstructRowR3( ...
+            analyses{groupIndex}.P1(mediumID, :), ...
+            analyses{groupIndex}.P2(mediumID, :), cfg);
+    end
+end
+
+fprintf('[6/10] Running reconstruction, geometry, and no-hidden-wire tests...\n');
 [segmentPassed, segmentLines] = testSegmentSegmentDistance();
 [unwrapPassed, unwrapLines] = testEndpointUnwrap();
 [wrapPassed, wrapLines] = testWrapSegmentToBox();
 [rowPassed, rowLines] = testRowReconstruction();
+[multiBoundaryPassed, multiBoundaryLines] = testMultiBoundaryReconstruction();
 [hiddenPassed, hiddenLines, noHiddenResult, noHiddenPieces] = testNoHiddenParentConnection();
 [gjkPassed, gjkLines] = testGJKCylinderDistance(fullfile(logDir, 'gjk_test_results.txt'));
 allLines = [segmentLines(:); unwrapLines(:); wrapLines(:); rowLines(:); ...
-    hiddenLines(:); gjkLines(:)];
+    multiBoundaryLines(:); hiddenLines(:); gjkLines(:)];
 testLogPath = fullfile(logDir, 'v2_test_results.txt');
 fileID = fopen(testLogPath, 'w');
 if fileID < 0, error('Cannot write V2 test log.'); end
@@ -99,21 +111,23 @@ for index = 1:numel(allLines)
     fprintf(1, '%s\n', allLines{index}); fprintf(fileID, '%s\r\n', allLines{index});
 end
 fclose(fileID);
-if ~(segmentPassed && unwrapPassed && wrapPassed && rowPassed && hiddenPassed && gjkPassed)
+if ~(segmentPassed && unwrapPassed && wrapPassed && rowPassed && ...
+        multiBoundaryPassed && hiddenPassed && gjkPassed)
     error('run_v2_q1_rebuild:TestsFailed', ...
         'At least one V2 gate test failed. Formal piece graph calculation stopped.');
 end
 
-fprintf('[6/9] Generating resolved GeometryPieces for R0/R1/R2...\n');
-modelNames = {'R0','R1','R2'};
-modelPieces = cell(3, 3);
-modelStats = cell(3, 3);
+fprintf('[7/10] Generating resolved GeometryPieces for R0/R1/R2/R3...\n');
+modelNames = {'R0','R1','R2','R3'};
+modelPieces = cell(3, 4);
+modelStats = cell(3, 4);
 for groupIndex = 1:3
-    for modelIndex = 1:3
+    for modelIndex = 1:4
         modelName = modelNames{modelIndex};
         modelPieces{groupIndex, modelIndex} = buildModelPieces(groupIndex, ...
             groups(groupIndex), analyses{groupIndex}, modelName, ...
-            r1Results{groupIndex}, r2Results{groupIndex}, cfg);
+            r1Results{groupIndex}, r2Results{groupIndex}, ...
+            r3Results{groupIndex}, cfg);
         stats.Records = analyses{groupIndex}.Records;
         if modelIndex == 1
             stats.Resolved = stats.Records; stats.Unresolved = 0; stats.Ambiguous = 0;
@@ -124,9 +138,15 @@ for groupIndex = 1:3
                 sum(strcmp(statuses, 'UNIQUE_ENDPOINT_UNWRAP'));
             stats.Unresolved = sum(strcmp(statuses, 'NO_ENDPOINT_UNWRAP'));
             stats.Ambiguous = sum(strcmp(statuses, 'AMBIGUOUS_ENDPOINT_UNWRAP'));
-        else
+        elseif modelIndex == 3
             statuses = cell(stats.Records, 1);
             for mediumID = 1:stats.Records, statuses{mediumID} = r2Results{groupIndex}{mediumID}.Status; end
+            stats.Resolved = sum(strcmp(statuses, 'UNIQUE_RECONSTRUCTION'));
+            stats.Unresolved = sum(strcmp(statuses, 'UNRESOLVED'));
+            stats.Ambiguous = sum(strcmp(statuses, 'AMBIGUOUS'));
+        else
+            statuses = cell(stats.Records, 1);
+            for mediumID = 1:stats.Records, statuses{mediumID} = r3Results{groupIndex}{mediumID}.Status; end
             stats.Resolved = sum(strcmp(statuses, 'UNIQUE_RECONSTRUCTION'));
             stats.Unresolved = sum(strcmp(statuses, 'UNRESOLVED'));
             stats.Ambiguous = sum(strcmp(statuses, 'AMBIGUOUS'));
@@ -136,10 +156,10 @@ for groupIndex = 1:3
     end
 end
 
-fprintf('[7/9] Building complete Piece-level graphs with exact cylinder distance...\n');
-modelResults = cell(3, 3);
+fprintf('[8/10] Building complete Piece-level graphs with exact cylinder distance...\n');
+modelResults = cell(3, 4);
 for groupIndex = 1:3
-    for modelIndex = 1:3
+    for modelIndex = 1:4
         stats = modelStats{groupIndex, modelIndex};
         if stats.Unresolved > 0 || stats.Ambiguous > 0
             fprintf('  Group%d %s: UNRESOLVED_MODEL (%d unresolved, %d ambiguous)\n', ...
@@ -159,15 +179,15 @@ for groupIndex = 1:3
     end
 end
 
-fprintf('[8/9] Writing Q1 rebuild tables, logs, and paper figures...\n');
-writeV2Tables(groups, analyses, r1Results, r2Results, modelPieces, ...
+fprintf('[9/10] Writing Q1 rebuild tables, logs, and paper figures...\n');
+writeV2Tables(groups, analyses, r1Results, r2Results, r3Results, modelPieces, ...
     modelStats, modelResults, tableDir, cfg);
 generateV2Figures(groups, analyses, r1Results, r2Results, modelPieces, ...
     modelResults, noHiddenResult, noHiddenPieces, cfg, figureDir);
 
-fprintf('[9/9] Writing V2 summary and verifying outputs...\n');
+fprintf('[10/10] Writing V2+R3 summary and verifying outputs...\n');
 summaryLines = {'============================================================'; ...
-    'HSMC 2026 A - V2 Q1 One-Row-One-Medium Rebuild'; ...
+    'HSMC 2026 A - V2+R3 Q1 One-Row-One-Medium Rebuild'; ...
     'MATLAB R2016a'; ...
     'No cross-row Parent merge; no hidden same-Medium electrical edge.'; ...
     '============================================================'};
@@ -175,7 +195,7 @@ for groupIndex = 1:3
     rawFull = sum(abs(analyses{groupIndex}.SegmentLength - cfg.mediumALength) <= cfg.lengthTolerance);
     summaryLines{end + 1} = sprintf('Group %d: Records=%d Raw5000=%d RawShort=%d', ...
         groupIndex, analyses{groupIndex}.Records, rawFull, analyses{groupIndex}.Records - rawFull); %#ok<AGROW>
-    for modelIndex = 1:3
+    for modelIndex = 1:4
         stats = modelStats{groupIndex, modelIndex};
         pathText = '';
         if ~isempty(modelResults{groupIndex, modelIndex}), pathText = modelResults{groupIndex, modelIndex}.BFSPath; end
@@ -187,9 +207,11 @@ for groupIndex = 1:3
 end
 summaryLines{end + 1} = ['Finding: endpoint +/-10000 unwrap alone is insufficient ' ...
     'to explain the many short records.'];
+summaryLines{end + 1} = ['R3 uses finite boundary-event candidates and forward wrapping; ' ...
+    'multiple valid originals are reported as AMBIGUOUS.'];
 summaryLines{end + 1} = ['UNRESOLVED_MODEL means the data interpretation is incomplete; ' ...
     'it is not NON_CONDUCTING.'];
-summaryLines{end + 1} = 'V2 Q1 REBUILD COMPLETE';
+summaryLines{end + 1} = 'V2+R3 Q1 REBUILD COMPLETE';
 summaryPath = fullfile(outputDir, 'v2_summary.txt');
 fileID = fopen(summaryPath, 'w');
 if fileID < 0, error('Cannot write V2 summary.'); end
@@ -199,13 +221,15 @@ fclose(fileID);
 required = {fullfile(tableDir,'raw_record_audit.csv'), ...
     fullfile(tableDir,'endpoint_unwrap_candidates.csv'), ...
     fullfile(tableDir,'reconstruction_summary.csv'), ...
+    fullfile(tableDir,'r3_reconstruction_candidates.csv'), ...
     fullfile(tableDir,'reconstructed_pieces.csv'), ...
     fullfile(tableDir,'q1_model_results.csv'), ...
     fullfile(figureDir,'raw_length_distribution.png'), ...
     fullfile(figureDir,'r1_endpoint_unwrap_success.png'), ...
     fullfile(figureDir,'row_reconstruction_examples.png'), ...
+    fullfile(figureDir,'r3_multiboundary_example.png'), ...
     fullfile(figureDir,'no_hidden_connection_demo.png'), ...
     fullfile(logDir,'coordinate_boundary_anomaly.txt'), ...
     fullfile(logDir,'v2_test_results.txt'), summaryPath};
 for index = 1:numel(required), assert(exist(required{index},'file') == 2, 'Missing output: %s', required{index}); end
-fprintf('V2 required output verification passed: %d files verified.\n', numel(required));
+fprintf('V2+R3 required output verification passed: %d files verified.\n', numel(required));

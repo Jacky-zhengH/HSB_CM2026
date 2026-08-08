@@ -1,0 +1,82 @@
+ 
+Òª¿ªÊ¼£¬Çë¼üÈëÒÔÏÂÏîÖ®Ò»: helpwin¡¢helpdesk »ò demo¡£
+ÓÐ¹Ø²úÆ·ÐÅÏ¢£¬Çë·ÃÎÊ www.mathworks.com¡£
+ 
+[1/10] Loading attachment under the one-row-one-medium rule...
+[2/10] Computing R0 raw audit and coordinate anomaly counts...
+[3/10] Enumerating R1 same-row endpoint unwrap candidates...
+[4/10] Testing R2 finite same-row reconstructions by forward wrapping...
+[5/10] Testing R3 multi-boundary same-row reconstructions...
+[6/10] Running reconstruction, geometry, and no-hidden-wire tests...
+GJK CASE 1 (å¹³è¡Œä¾§é¢é—´è·1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (å…±è½´å¹³ç«¯é—´è·50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (çœŸå®žç›¸äº¤): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (åž‚ç›´äº¤å‰): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (äº¤æ¢å¯¹ç§°æ€?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+Segment CASE 1 (ç›¸äº¤): d=0 expected=0 PASS=1
+Segment CASE 2 (å¹³è¡Œ): d=3 expected=3 PASS=1
+Segment CASE 3 (å¼‚é¢): d=2.2360679775 expected=2.2360679775 PASS=1
+Segment CASE 4 (ç«¯ç‚¹æœ€è¿?): d=2.82842712475 expected=2.82842712475 PASS=1
+Segment CASE 5 (é‡åˆ): d=0 expected=0 PASS=1
+R1 direct 5000: PASS=1
+R1 recognizes k=[1,0,0] candidate: PASS=1
+R1 keeps all 27 k combinations and simultaneous X/Y unwrap: PASS=1
+R1 no nearest fallback: PASS=1
+Wrap X boundary into two pieces: PASS=1
+Wrap simultaneous X/Y crossing: PASS=1
+R2 extend and forward reproduce: PASS=1
+R2 unresolved remains unresolved: PASS=1
+R3 forward wrap crosses X then Y into 3 Pieces: PASS=1
+R3 middle Piece reverse recovery is explicitly AMBIGUOUS: candidates=3 PASS=1
+No hidden connection: LEFT-A1-1=1, A1-2-RIGHT=1, pieceEdge=0, Conducting=0, PASS=1
+GJK CASE 1 (å¹³è¡Œä¾§é¢é—´è·1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (å…±è½´å¹³ç«¯é—´è·50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (çœŸå®žç›¸äº¤): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (åž‚ç›´äº¤å‰): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (äº¤æ¢å¯¹ç§°æ€?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+[7/10] Generating resolved GeometryPieces for R0/R1/R2/R3...
+[8/10] Building complete Piece-level graphs with exact cylinder distance...
+  Group1 R0: NON_CONDUCTING | 
+  Group1 R1: UNRESOLVED_MODEL (10 unresolved, 0 ambiguous)
+  Group1 R2: UNRESOLVED_MODEL (3 unresolved, 0 ambiguous)
+  Group1 R3: UNRESOLVED_MODEL (3 unresolved, 0 ambiguous)
+  Group2 R0: CONDUCTING | LEFT -> A2-1 -> A12-1 -> A24-1 -> A39-1 -> RIGHT
+  Group2 R1: UNRESOLVED_MODEL (38 unresolved, 0 ambiguous)
+  Group2 R2: UNRESOLVED_MODEL (16 unresolved, 0 ambiguous)
+  Group2 R3: UNRESOLVED_MODEL (16 unresolved, 0 ambiguous)
+  Group3 R0: CONDUCTING | LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT
+  Group3 R1: UNRESOLVED_MODEL (380 unresolved, 0 ambiguous)
+  Group3 R2: UNRESOLVED_MODEL (0 unresolved, 30 ambiguous)
+  Group3 R3: UNRESOLVED_MODEL (0 unresolved, 30 ambiguous)
+[9/10] Writing Q1 rebuild tables, logs, and paper figures...
+[10/10] Writing V2+R3 summary and verifying outputs...
+============================================================
+HSMC 2026 A - V2+R3 Q1 One-Row-One-Medium Rebuild
+MATLAB R2016a
+No cross-row Parent merge; no hidden same-Medium electrical edge.
+============================================================
+Group 1: Records=12 Raw5000=2 RawShort=10
+R0 Resolved=12 Unresolved=0 Ambiguous=0 Pieces=12 Status=NON_CONDUCTING Path=
+R1 Resolved=2 Unresolved=10 Ambiguous=0 Pieces=2 Status=UNRESOLVED_MODEL Path=
+R2 Resolved=9 Unresolved=3 Ambiguous=0 Pieces=16 Status=UNRESOLVED_MODEL Path=
+R3 Resolved=9 Unresolved=3 Ambiguous=0 Pieces=16 Status=UNRESOLVED_MODEL Path=
+------------------------------------------------------------
+Group 2: Records=49 Raw5000=11 RawShort=38
+R0 Resolved=49 Unresolved=0 Ambiguous=0 Pieces=49 Status=CONDUCTING Path=LEFT -> A2-1 -> A12-1 -> A24-1 -> A39-1 -> RIGHT
+R1 Resolved=11 Unresolved=38 Ambiguous=0 Pieces=11 Status=UNRESOLVED_MODEL Path=
+R2 Resolved=33 Unresolved=16 Ambiguous=0 Pieces=55 Status=UNRESOLVED_MODEL Path=
+R3 Resolved=33 Unresolved=16 Ambiguous=0 Pieces=55 Status=UNRESOLVED_MODEL Path=
+------------------------------------------------------------
+Group 3: Records=535 Raw5000=155 RawShort=380
+R0 Resolved=535 Unresolved=0 Ambiguous=0 Pieces=535 Status=CONDUCTING Path=LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT
+R1 Resolved=155 Unresolved=380 Ambiguous=0 Pieces=155 Status=UNRESOLVED_MODEL Path=
+R2 Resolved=505 Unresolved=0 Ambiguous=30 Pieces=915 Status=UNRESOLVED_MODEL Path=
+R3 Resolved=505 Unresolved=0 Ambiguous=30 Pieces=915 Status=UNRESOLVED_MODEL Path=
+------------------------------------------------------------
+Finding: endpoint +/-10000 unwrap alone is insufficient to explain the many short records.
+R3 uses finite boundary-event candidates and forward wrapping; multiple valid originals are reported as AMBIGUOUS.
+UNRESOLVED_MODEL means the data interpretation is incomplete; it is not NON_CONDUCTING.
+V2+R3 Q1 REBUILD COMPLETE
+V2+R3 required output verification passed: 14 files verified.

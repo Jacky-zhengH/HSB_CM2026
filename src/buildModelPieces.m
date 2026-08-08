@@ -1,4 +1,5 @@
-function pieces = buildModelPieces(groupIndex, group, analysis, modelName, r1Results, r2Results, cfg)
+function pieces = buildModelPieces(groupIndex, group, analysis, modelName, ...
+        r1Results, r2Results, r3Results, cfg)
 %BUILDMODELPIECES Create resolved GeometryPieces without cross-row sharing.
 
 pieces.Group = zeros(0, 1);
@@ -33,6 +34,14 @@ for mediumID = 1:analysis.Records
             cfg.HALF_L, cfg.L, cfg.reconstructionTolerance);
     elseif strcmp(modelName, 'R2')
         item = r2Results{mediumID};
+        if isempty(item.SelectedIndex)
+            continue;
+        end
+        originalStart = item.OriginalStart(item.SelectedIndex, :);
+        originalEnd = item.OriginalEnd(item.SelectedIndex, :);
+        wrapped = item.WrappedPieces{item.SelectedIndex};
+    elseif strcmp(modelName, 'R3')
+        item = r3Results{mediumID};
         if isempty(item.SelectedIndex)
             continue;
         end

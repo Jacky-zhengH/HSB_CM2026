@@ -36,7 +36,7 @@ PhysicalMedium，并把同一 Parent 的多个片段当作一个电学节点。�
 因此旧 M1/M2 Parent 模型及其 T/T/T 结论已废弃，不用于论文最终结论；相关主动
 求解代码和 Parent 导通论文图已删除。Git 历史仍可追溯旧版本。
 
-## 当前三种数据解释
+## 当前四种数据解释
 
 ### R0：Raw Record Baseline
 
@@ -56,6 +56,17 @@ PhysicalMedium，并把同一 Parent 的多个片段当作一个电学节点。�
 
 `wrapSegmentToBox.m` 通过参数 `P(t)` 求所有 X/Y/Z 周期边界交点，再按各参数区间的
 中点确定整数格平移，支持单轴、双轴及连续多方向越界，不使用端点硬裁剪。
+
+### R3：Multi-boundary Same-row Reconstruction
+
+R3 允许附件当前行是原始 5000 nm 圆柱的中间 GeometryPiece。若当前段长为 `Lraw`，
+沿当前方向在前后分别恢复 `a`、`b`，并严格满足 `a+b=5000-Lraw`。算法不连续扫描
+`a`：它根据 P1/P2 是否位于 X/Y/Z 的 ±5000 边界及当前方向，计算有限个周期边界
+事件，用事件点及相邻事件区间代表构造有限候选，再统一交给 `wrapSegmentToBox` 正向
+验证。若同一中间 Piece 对应多个有效原圆柱，状态为 `AMBIGUOUS`，不设置选中候选。
+
+R1 仍独立保留完整的 `[kx,ky,kz]∈{-1,0,1}^3` 共 27 组枚举；R3 没有缩减或替代
+该枚举，因此端点同时发生 X/Y 多轴 ±10000 nm 平移的 R1 情形仍被覆盖。
 
 ## V2 实际数据辨识结果
 
@@ -92,13 +103,25 @@ Group 1 未解析介质为 A6、A7、A11；Group 2 有 16 条未解析；Group 3
 这证明在“一行一介质”的约束下，仅由附件两个端点仍不足以唯一恢复全部 5000 nm
 原始圆柱。这是数据解释结论，不是程序失败。
 
+### R3 多边界同一行重构
+
+| 组别 | UNIQUE_RECONSTRUCTION | UNRESOLVED | AMBIGUOUS |
+|---|---:|---:|---:|
+| Group 1 | 9 | 3 | 0 |
+| Group 2 | 33 | 16 | 0 |
+| Group 3 | 505 | 0 | 30 |
+
+附件实测中 R3 与 R2 的计数相同：新增的中间 Piece 解释没有使现有未解析或多解行变成
+唯一解。该结果并不否定 R3；强制构造的“先 X 后 Y”样例会生成 3 个 Piece，只提供
+中间 Piece 反向恢复时得到 3 个正向验证候选，程序按要求输出 `AMBIGUOUS`。
+
 ## 当前 Q1 状态
 
-| 组别 | R0 | R1 | R2 |
-|---|---|---|---|
-| Group 1 | NON_CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
-| Group 2 | CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
-| Group 3 | CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
+| 组别 | R0 | R1 | R2 | R3 |
+|---|---|---|---|---|
+| Group 1 | NON_CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
+| Group 2 | CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
+| Group 3 | CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
 
 R0 的真实 Piece-level BFS 路径为：
 
@@ -106,7 +129,7 @@ R0 的真实 Piece-level BFS 路径为：
 - Group 2：`LEFT -> A2-1 -> A12-1 -> A24-1 -> A39-1 -> RIGHT`。
 - Group 3：`LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT`。
 
-R1/R2 的 `UNRESOLVED_MODEL` 表示数据解释不完整，绝不等价于 `NON_CONDUCTING`，
+R1/R2/R3 的 `UNRESOLVED_MODEL` 表示数据解释不完整，绝不等价于 `NON_CONDUCTING`，
 因此当前不能把 R0 的布尔结果直接当作固定 5000 nm 介质模型的最终 Q1 答案。
 
 ## 无隐藏导线验证
@@ -124,8 +147,8 @@ RIGHT，结果为 NON_CONDUCTING。该测试已在 MATLAB R2016a 中通过。
 ## 当前尚未确定的问题
 
 附件没有说明短记录的两个端点究竟对应完整介质端点、单个截断 Piece 端点，还是其他
-编码。R2 已证明部分行无法重构、部分行存在双候选。除非获得附件生成规则或额外字段，
-不能在不引入额外假设的前提下唯一恢复所有 5000 nm 介质，也不能给 R1/R2 强制输出
+编码。R2/R3 已证明部分行无法重构、部分行存在多个候选。除非获得附件生成规则或额外字段，
+不能在不引入额外假设的前提下唯一恢复所有 5000 nm 介质，也不能给 R1/R2/R3 强制输出
 Q1 布尔答案。
 
 ## 论文素材索引
@@ -133,12 +156,16 @@ Q1 布尔答案。
 - `raw_length_distribution.png`：展示原始轴长与 5000 nm 理论值的矛盾。
 - `r1_endpoint_unwrap_success.png`：说明单端点周期反变换不足以解释短记录。
 - `row_reconstruction_examples.png`：展示 R1 成功、R2 补救和 R2 未解析实例。
+- `r3_multiboundary_example.png`：展示先 X 后 Y 形成 3 个 Piece，以及仅凭中间 Piece
+  反向恢复时的多解状态。
 - `no_hidden_connection_demo.png`：解释同 MediumID 不产生隐藏电学边。
 - `q1_group*_piece_network.png`：R0 可完整计算时的 Piece-level 网络和真实 BFS 路径。
-- `q1_model_results.csv`：R0/R1/R2 的解析完整性与导通状态汇总。
+- `r3_reconstruction_candidates.csv`：R3 的 `a`、`b`、原始端点和正向验证结果。
+- `q1_model_results.csv`：R0/R1/R2/R3 的解析完整性与导通状态汇总。
 - `capsule_vs_gjk_example.png`：保留的有限平端圆柱 GJK 与 capsule 假阳性素材。
 
-前六项位于 `output/Q1_rebuild/figures/` 或 `output/Q1_rebuild/tables/`；最后一项保留于
+除最后一项外，以上素材位于 `output/Q1_rebuild/figures/` 或
+`output/Q1_rebuild/tables/`；最后一项保留于
 `output/V1/figures/`，其几何结论不依赖旧 Parent 模型。
 
 ## 版本记录
@@ -146,5 +173,6 @@ Q1 布尔答案。
 - 2026-08-07 V0：完成附件原始数据审查。
 - 2026-08-07 V1/V1.1：曾进行跨行 Parent 敏感性分析，现已废弃，不用于正式结论。
 - 2026-08-08 V2-Q1：改为一行一介质、同一行重构和 Piece-level 无隐藏导线模型。
+- 2026-08-08 R3：新增多边界中间 Piece 有限事件重构、正向验证和显式多解输出。
 
 当前未实现 Q2、Q3、Q4。
