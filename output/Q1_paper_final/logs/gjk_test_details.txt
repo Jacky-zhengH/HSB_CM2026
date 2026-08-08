@@ -1,0 +1,6 @@
+GJK CASE 1 (平行侧面间距1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (共轴平端间距50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (真实相交): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (垂直交叉): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (交换对称�?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1

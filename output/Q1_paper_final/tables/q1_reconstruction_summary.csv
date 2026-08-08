@@ -1,0 +1,4 @@
+Group,Records,Direct,SingleBoundary,Recovered,ReplayFailed,TwoBoundary,NoBoundaryShort,Unique,Ambiguous,Unresolved,OnePiece,TwoPieces,ThreePieces,FourPieces
+1,12,2,7,7,0,0,3,9,0,3,2,7,0,0
+2,49,11,22,22,0,0,16,33,0,16,11,22,0,0
+3,535,155,350,350,0,30,0,505,30,0,155,292,56,2

@@ -1,0 +1,11 @@
+Index,FigureName,Status,FileExists,FileSizeBytes,ErrorMessage
+1,retained_part_inverse_principle,PASS,1,104608,""
+2,single_boundary_real_examples,PASS,1,125674,""
+3,retained_model_status,PASS,1,61155,""
+4,piece_count_distribution,PASS,1,56789,""
+5,charge_vs_conduction,PASS,1,77512,""
+6,group1_upper_bound_certificate,PASS,1,201469,""
+7,q1_group1_3d,PASS,1,126869,""
+8,q1_group2_3d,PASS,1,127158,""
+9,q1_group3_3d,PASS,1,247738,""
+10,q1_three_groups_overview,PASS,1,152564,""

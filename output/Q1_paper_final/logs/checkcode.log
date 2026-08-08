@@ -1,0 +1,14 @@
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\buildGroup1OptimisticUpperBound.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\writePaperFinalOutputs.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\buildNaNSeparatedPolyline.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\generateOnePaperFigure.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\getChineseFontName.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\paperFigureNames.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\paperText.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\writeFigureManifest.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\src\runPaperFinalCheckcode.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\tests\testOptimisticUpperBound.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\scripts\run_q1_paper_compute.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\scripts\run_q1_paper_figures_safe.m ISSUES=0
+FILE=D:\HSMC2026\A_Q1_MATLAB\scripts\run_q1_paper_final.m ISSUES=0
+TOTAL_ISSUES=0

@@ -1,0 +1,4 @@
+Group,MediumCount,UniqueMediums,AmbiguousMediums,UnresolvedMediums,PieceCount,PhysicalEdges,LeftContacts,RightContacts,LowerBoundConducting,UpperBoundChecked,UpperBoundConducting,ProofType,FinalConducting,FinalStatus,BFSPath
+1,12,9,0,3,16,12,7,7,0,1,0,"OPTIMISTIC_GEOMETRIC_UPPER_BOUND",0,"FINAL_NON_CONDUCTING_BY_UPPER_BOUND",""
+2,49,33,0,16,55,60,22,22,1,0,0,"UNIQUE_RECONSTRUCTION_LOWER_BOUND",1,"FINAL_CONDUCTING_BY_LOWER_BOUND","LEFT -> A2-1 -> A12-1 -> A24-1 -> A10-2 -> RIGHT"
+3,535,505,30,0,915,659,181,179,1,0,0,"UNIQUE_RECONSTRUCTION_LOWER_BOUND",1,"FINAL_CONDUCTING_BY_LOWER_BOUND","LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT"

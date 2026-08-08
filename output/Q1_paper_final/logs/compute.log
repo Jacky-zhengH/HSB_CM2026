@@ -1,0 +1,18 @@
+[COMPUTE 1/8] Setup complete. No figures will be created.
+[COMPUTE 2/8] Excel schema validated.
+GJK CASE 1 (平行侧面间距1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (共轴平端间距50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (真实相交): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (垂直交叉): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (交换对称�?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+[COMPUTE 3/8] Core regression tests executed.
+  Group1 reconstructed: 12/12.
+  Group2 reconstructed: 49/49.
+  Group3 reconstructed: 535/535.
+[COMPUTE 4/8] All 596 rows reconstructed or classified.
+[COMPUTE 5/8] Lower-bound graphs built.
+[COMPUTE 6/8] Group1 optimistic upper bound built and tested.
+[COMPUTE 7/8] Final lower/upper-bound hard gate passed.
+[COMPUTE 8/8] Tables, summary, and paper_state.mat written.
+Q1 PAPER COMPUTE COMPLETE

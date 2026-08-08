@@ -1,0 +1,29 @@
+Q1 PAPER FINAL
+Branch=q1-paper-final-redo
+BaseCommit=5deed2fb8b5b285d47301b529736931ef8b6b218
+MATLABVersion=9.0.0.341360 (R2016a)
+
+Group1UpperBoundConducting=0
+MinEnvelopeToKnownAxisDistance=107.344730206884 nm
+MinEnvelopeToEnvelopeAxisDistance=245.656423416521 nm
+AxisThreshold=61.8 nm
+
+Group1 LowerBoundConducting=0 UpperBoundChecked=1 UpperBoundConducting=0 FinalConducting=0
+Group1 ProofType=OPTIMISTIC_GEOMETRIC_UPPER_BOUND
+Group1 FinalStatus=FINAL_NON_CONDUCTING_BY_UPPER_BOUND
+Group1 BFS=
+Group1 Mediums=12 Pieces=16 PhysicalEdges=12 LeftContacts=7 RightContacts=7
+
+Group2 LowerBoundConducting=1 UpperBoundChecked=0 UpperBoundConducting=0 FinalConducting=1
+Group2 ProofType=UNIQUE_RECONSTRUCTION_LOWER_BOUND
+Group2 FinalStatus=FINAL_CONDUCTING_BY_LOWER_BOUND
+Group2 BFS=LEFT -> A2-1 -> A12-1 -> A24-1 -> A10-2 -> RIGHT
+Group2 Mediums=49 Pieces=55 PhysicalEdges=60 LeftContacts=22 RightContacts=22
+
+Group3 LowerBoundConducting=1 UpperBoundChecked=0 UpperBoundConducting=0 FinalConducting=1
+Group3 ProofType=UNIQUE_RECONSTRUCTION_LOWER_BOUND
+Group3 FinalStatus=FINAL_CONDUCTING_BY_LOWER_BOUND
+Group3 BFS=LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT
+Group3 Mediums=535 Pieces=915 PhysicalEdges=659 LeftContacts=181 RightContacts=179
+
+FINAL_Q1=Group1 NON_CONDUCTING; Group2 CONDUCTING; Group3 CONDUCTING
