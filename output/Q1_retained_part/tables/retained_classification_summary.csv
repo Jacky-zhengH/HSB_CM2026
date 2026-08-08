@@ -1,0 +1,5 @@
+Group,Records,Direct5000,SingleBoundaryShort,SingleBoundaryRecovered,TwoBoundaryShort,NoBoundaryShort,ReplayFailed,HasAbs500Coordinate,NoBoundaryHasAbs500,UniqueReconstructed,Ambiguous,Unresolved,Invalid
+1,12,2,7,7,0,3,0,5,3,9,0,3,0
+2,49,11,22,22,0,16,0,23,16,33,0,16,0
+3,535,155,350,350,30,0,0,0,0,505,30,0,0
+0,596,168,379,379,30,19,0,28,19,547,30,19,0

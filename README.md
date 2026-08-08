@@ -1,225 +1,255 @@
-# 2026华数杯A题：微构体中填充导电介质的仿真优化
+# 2026 华数杯 A 题：Q1 MATLAB 独立验证
 
-本仓库是 A 题 Q1 的 MATLAB R2016a 独立验证工程。题目研究边长 10000 nm 的微构体中，有限平端圆柱介质 A 能否在左右带电表面之间形成真实导电通路。介质 A 的轴长为 5000 nm、半径为 30 nm，介质或电极间表面距离不超过 1.8 nm 时才视为导通。题目原文见 [A_problem.pdf](docs/A_problem.pdf)。
+本仓库使用 MATLAB 9.0 R2016a 验证边长 `10000 nm` 的周期微构体中，轴长 `5000 nm`、半径 `30 nm` 的有限平端圆柱介质 A 是否形成 LEFT（`x=-5000`）到 RIGHT（`x=5000`）的真实导电通路。介质或电极间表面距离不超过 `1.8 nm` 才建立物理导电边。
 
-## Q1：端点逆向周期恢复模型专项验证
+本分支为 `q1-retained-part-rebuild`，基于提交 `3924096dee6179646832da725ab74c71200b8039`，只验证一种可证伪假设，不跨 Excel 行，不改变附件坐标，不修改旧输出 `output/Q1/` 或 `output/Q1_endpoint_rebuild/`。
 
-本分支 `q1-endpoint-unfold-final` 严格验证一个且仅一个数据模型：
-
-```text
-一行 Excel = 一根独立介质 Ai
-六个数 = 该介质轴线的两个端点 X1、X2
-```
-
-本分支不跨 Excel 行配对，不合并方向族，不把一行当作边界截断后的 GeometryPiece，也不根据其它记录补出当前介质。实验目标是判断：附件每行的两个坐标能否通过三轴周期逆平移恢复为一根完整的 5000 nm 介质。
-
-正式入口为：
+正式入口：
 
 ```matlab
 setup_project
-run('scripts/run_q1_endpoint_rebuild.m')
+run('scripts/run_q1_retained_part.m')
 ```
 
-全部新输出位于 `output/Q1_endpoint_rebuild/`，不会覆盖事故版本的 `output/Q1/`。
-
-## 附件数据定义与 schema
-
-PDF 的附件说明明确指出：每个分表表示一个微构体，每行表示一个介质 A；前三列是一个轴端顶点，后三列是另一个轴端顶点。MATLAB 实际读取并确认：
-
-| Sheet | 两级表头 | P1 | P2 | Records |
-|---|---|---|---|---:|
-| 组1 | 顶点1/顶点2；X Y Z X Y Z | columns 1–3 | columns 4–6 | 12 |
-| 组2 | 顶点1/顶点2；X Y Z X Y Z | columns 1–3 | columns 4–6 | 49 |
-| 组3 | 顶点1/顶点2；X Y Z X Y Z | columns 1–3 | columns 4–6 | 535 |
-
-完整 sheet、header、坐标列和每组前五条记录见 [`excel_schema_audit.txt`](output/Q1_endpoint_rebuild/logs/excel_schema_audit.txt)。schema 不明确时脚本会停止，不会进入 Endpoint 枚举。
-
-## 周期端点逆向恢复
-
-设附件中的两个坐标为 `X1w,X2w`，盒长 `B=10000 nm`。两个端点在无限展开空间中的周期像可写成
+全部新结果位于 `output/Q1_retained_part/`。完整运行必须处理 `596/596` 行，并打印：
 
 ```text
-X1u = X1w + B*n1
-X2u = X2w + B*n2
+Q1 RETAINED-PART VALIDATION COMPLETE
 ```
 
-因此
+## 前一轮 Endpoint 实验对照
+
+前一独立分支 `q1-endpoint-unfold-final` 已完成 596 条记录的双端点周期像实验。相对位移 27 枚举与双端点 `27×27=729` 枚举对全部记录完全一致，但只能恢复 168 条原始距离已经为 5000 nm 的记录。
+
+**简单双端点周期解卷已被 596×729 实验否证。** 本分支保留旧函数和旧输出用于版本对照，但 [`reconstructFromRetainedPart.m`](src/reconstructFromRetainedPart.m) 不调用 Endpoint `±10000` 枚举决定短记录结果。
+
+# Q1 Retained Original Part Hypothesis
+
+## 数学定义
+
+附件每一行是一个独立 Medium，两个点是执行边界截断/平移后的观察结果；禁止把不同 Excel 行拼成同一 Medium。正式边界仅为：
 
 ```text
-Delta_w = X2w - X1w
-X2u - X1u = Delta_w + B*(n2-n1)
+x,y,z = ±5000 nm
 ```
 
-令 `k=n2-n1`，正式算法枚举
+对观察点 `P1,P2`，记 `Lobs=norm(P2-P1)`。
+
+- 若 `|Lobs-5000|<=1e-3 nm`，分类为 `DIRECT_FULL`，直接正向重放。
+- 若 `Lobs<5000` 且恰有一个端点位于正式边界，定义非边界点为 `I`、边界点为 `C`，并统一定向
 
 ```text
-k = [kx,ky,kz] in {-1,0,1}^3
-Delta(k) = Delta_w + 10000*k
-abs(norm(Delta(k))-5000) <= endpointLengthTolerance
+u = (C-I)/Lobs
+Lmiss = 5000-Lobs
+OriginalStart = I
+OriginalEnd   = C + Lmiss*u
 ```
 
-默认 `endpointLengthTolerance=1e-3 nm`。所有 27 个 `k` 都会检查，即使表内两点直接距离已经是 5000 nm 也不会提前返回。X/Y/Z 可以同时非零，所有合法候选均保留，不偏好 `k=0`、最小平移或第一个候选。
+全部缺失长度只允许出现在 `C` 之后；不允许 `a+b=Lmiss` 自由分配。若 `C` 位于 `x=+5000`，延伸方向必须满足 `u_x>0`；负面及 Y/Z 同理。角点只把方向实际向外穿越的面视为活动事件。
 
-正式代码把 `UnwrappedStart` 固定为 `X1w`，只构造 `UnwrappedEnd=X1w+Delta(k)`，这并不表示物理上只允许 X2 平移。整根介质共同平移任意 `10000*[nx,ny,nz]` 不改变盒内几何；固定一个周期代表只是消除了共同平移自由度。
+- 若短记录有两个正式边界端点，缺失长度可能分布在两侧，分类为 `AMBIGUOUS_TWO_BOUNDARY_RETAINED`，不选 midpoint，不扫描 `a/b`。
+- 若短记录没有正式边界端点，分类为 `UNRESOLVED_NO_FORMAL_BOUNDARY`，不做自由补长、Endpoint 解卷或跨行配对。
 
-## 729 双端点枚举交叉验证
+![原地遗留段逆向恢复原理](output/Q1_retained_part/figures/retained_part_inverse_principle.png)
 
-为直接排除“X1 也可能被平移”和“两个端点可沿多个轴分别平移”的疑问，验证器 [`enumerateEndpointImagePairs.m`](src/enumerateEndpointImagePairs.m) 显式枚举：
+PDF Figure 2 的含义在本模型中是：原地遗留部分为 `(3500,y1,z1)→(5000,y3,z3)`；越界部分为 `(5000,y3,z3)→(6000,y2,z2)`；后者平移为 `(-5000,y3,z3)→(-4000,y2,z2)`。逆向阶段只恢复完整直线，所有 X/Y/Z 后续事件统一交给 `wrapSegmentToBox` 计算。
+
+## Forward Replay 硬验证
+
+每个 Direct 或单边界候选必须满足：
 
 ```text
-n1 in {-1,0,1}^3
-n2 in {-1,0,1}^3
-27 * 27 = 729 endpoint image pairs
+Recovered 5000 nm Medium
+    -> wrapSegmentToBox
+    -> 1/2/3/4 GeometryPieces
+    -> Observed segment 在结果中真实重现
+    -> 匹配 Piece 的 Translation=[0,0,0]
 ```
 
-729 法保留每个 `X1candidate`、`X2candidate`、长度、误差、`n1/n2` 和相对 `k`。经过共同周期平移与盒内物理几何去重后，它必须与 [`unwrapMediumEndpoints.m`](src/unwrapMediumEndpoints.m) 的 27 法给出完全相同的候选集合。
+端点顺序可反转，匹配误差取两个方向中较小者。不能重现时状态为 `REJECTED_FORWARD_REPLAY`，不得放宽长度或容差。本轮实际 379 个单边界短记录全部完成零平移闭环，ReplayFailed 为 0。
 
-本次实际结果为：
+![三组真实单边界案例](output/Q1_retained_part/figures/single_boundary_real_examples.png)
 
-```text
-Relative-27 vs Explicit-729 consistency = 596 / 596 PASS
-```
+## 596 条数据结构与恢复结果
 
-这既验证了数学降维，也验证了代码没有漏掉 X1、X2 分别平移或 XYZ 多轴同时平移的情况。
+程序从 `attachment.xlsx` 重新读取并统计，不硬编码分类数字。
 
-## 完整介质的 Forward Boundary Wrap
+| Group | Direct | SingleBoundary | Recovered | TwoBoundary | NoBoundaryShort | ReplayFailed |
+|---|---:|---:|---:|---:|---:|---:|
+| Group1 | 2 | 7 | 7 | 0 | 3 | 0 |
+| Group2 | 11 | 22 | 22 | 0 | 16 | 0 |
+| Group3 | 155 | 350 | 350 | 30 | 0 | 0 |
+| 合计 | 168 | 379 | 379 | 30 | 19 | 0 |
 
-只有先恢复出完整 5000 nm 轴段后，才调用 `wrapSegmentToBox`。轴线参数式为
+最终状态为：
 
-```text
-P(t) = P0 + t(P1-P0), 0 <= t <= 1
-```
+| Group | Unique | Ambiguous | Unresolved |
+|---|---:|---:|---:|
+| Group1 | 9 | 0 | 3 |
+| Group2 | 33 | 0 | 16 |
+| Group3 | 505 | 30 | 0 |
+| 合计 | 547 | 30 | 19 |
 
-程序计算它与所有周期平面 `x/y/z=5000+n*10000` 的交点参数，排序并合并相同 `t`，再以区间中点确定每段所属周期 cell，将整个区间平移回 `[-5000,5000]^3`。同一时刻穿越 XY 或 XYZ 只产生一个断点，不产生零长度 Piece。
+![Retained 模型状态](output/Q1_retained_part/figures/retained_model_status.png)
 
-下图使用 `k=[-1,0,-1]`：`X2'=X2+[-10000,0,-10000]` 恢复完整 5000 nm 介质，随后由算法计算 X 边界交点 C1 和 Z 边界交点 C2，自动产生 P1-1、P1-2、P1-3。C1/C2 不是附件输入，也不来自其它 Excel 行。
+单边界结果 `379/379` 支持“附件短段是原位置遗留部分”这一局部假设，但 30 条双边界记录仍不唯一、19 条无正式边界记录仍无法由本假设解释，因此不能宣称 596 条完整恢复。
 
-![多轴端点逆向恢复](output/Q1_endpoint_rebuild/figures/endpoint_multi_axis_recovery.png)
+## ±500 数据诊断
 
-1/2/3/4 Piece、X→Z、X→Y→Z、同时 XY 和同时 XYZ 均有单元测试。
+`±500` 不是正式边界，仅记录为 `HasAbs500Coordinate`：
 
-![边界Piece生成](output/Q1_endpoint_rebuild/figures/boundary_piece_examples.png)
+- 596 条中共有 28 条含至少一个绝对值为 500 的坐标；
+- 19 条 `RawLength<5000` 且无 `±5000` 正式边界端点的记录，全部含 `±500` 坐标；
+- 这 19 条来自 Group1 的 3 条和 Group2 的 16 条。
 
-## 候选物理去重与状态
+该现象需要进一步核对附件生成机制或官方说明。本分支没有把 `±500` 当边界，没有乘 10、自动缩放或修改坐标。
 
-每个长度候选都必须正向 wrap，并验证：
+## GeometryPiece 数量
 
-- 所有 Piece 坐标位于盒内；
-- 每个 Piece 长度为正；
-- Piece 总长度为 5000 nm；
-- 候选首尾与附件端点周期等价。
+只为 `DIRECT_FULL` 与 `RETAINED_SINGLE_BOUNDARY_UNIQUE` 构建 GeometryPieces。逆向重构器不写死 Piece 数量；正向包装器自动处理 X→Z、X→Y→Z 及同时多轴事件。
 
-[`canonicalizeWrappedGeometry.m`](src/canonicalizeWrappedGeometry.m) 对每个 Piece 消除端点方向，并对 Piece 集合排序。不同 `n1/n2` 或 `k` 若得到同一盒内 Piece 集合，只算一个物理解。最终状态只有：
-
-- `UNRESOLVED`：0 个物理解；
-- `UNIQUE`：1 个物理解；
-- `AMBIGUOUS_PERIODIC`：多个不同盒内物理解，全部保留且不强选。
-
-## Medium、GeometryPiece、Charged 与 Connected
-
-一根完整 Medium 经正向边界处理可形成多个 `Ai-j` GeometryPiece。它们共享 `MediumID`，但 Piece 是物理图节点。
-
-同一 Medium 的 Piece 可以继承带电状态；这种继承不会调用 `addEdge`，也不会让两个空间分离的 Piece 自动连通：
-
-```text
-same MediumID => may share Charged State
-same MediumID != Conductive Edge
-Charged != Connected
-```
-
-![带电与导通区别](output/Q1_endpoint_rebuild/figures/charge_vs_conduction.png)
-
-只有 `x=-5000` 的 LEFT 和 `x=5000` 的 RIGHT 是电极。Y/Z 四面参与周期边界处理，但不能产生 Direct Charge。
-
-## 有限圆柱距离与 Piece-level 图
-
-不同 Piece 之间先计算有限轴线段距离；若 `d_axis>2*30+1.8=61.8 nm` 直接排除，否则用 GJK 计算两个有限平端实心圆柱的真实距离。只有 `d_exact<=1.8 nm` 才建立物理边。
-
-`axisDistance-60` 是 capsule 近似，不能作为最终判据。下图的合成平端案例中，capsule 会误判，而 GJK 给出真实端面间距。
-
-![Capsule与GJK](output/Q1_endpoint_rebuild/figures/capsule_vs_gjk.png)
-
-不同 Medium 只在最终盒内 GeometryPiece 间计算欧氏距离，禁止 minimum-image 或复制全局周期镜像。最终导通必须由 BFS 找到完全由真实边组成的路径：
-
-```text
-LEFT -> Piece -> Piece -> ... -> RIGHT
-```
-
-## MATLAB 测试结果
-
-MATLAB `9.0.0.341360 (R2016a)` 实际运行通过了：
-
-- Excel schema；
-- 27 与 729 人工一致性；
-- 无平移、仅 X1、仅 X2、X1-X/X2-Z、X2 同时 XZ、XYZ；
-- 多个数学表达物理去重、真实周期多解保留、无解继续、端点反转不变；
-- 1/2/3/4 Piece、X→Z、X→Y→Z、同时 XY、同时 XYZ；
-- segment distance、有限圆柱 GJK；
-- same Medium 无隐藏导电边、Charge inheritance、Y/Z 绝缘；
-- 真实 Piece 桥接、断桥仍不导通、禁止全局周期假边。
-
-完整测试日志见 [`q1_endpoint_test_results.txt`](output/Q1_endpoint_rebuild/logs/q1_endpoint_test_results.txt)，静态检查结果为 `TOTAL_ISSUES=0`，见 [`checkcode.log`](output/Q1_endpoint_rebuild/logs/checkcode.log)。
-
-## 附件 596 条实际验证结果
-
-| Group | Records | Raw5000 | Unique | Ambiguous | Unresolved |
-|---|---:|---:|---:|---:|---:|
-| 1 | 12 | 2 | 2 | 0 | 10 |
-| 2 | 49 | 11 | 11 | 0 | 38 |
-| 3 | 535 | 155 | 155 | 0 | 380 |
-| 合计 | 596 | 168 | 168 | 0 | 428 |
-
-![端点模型状态](output/Q1_endpoint_rebuild/figures/endpoint_model_status.png)
-
-本次附件中所有唯一候选都是原始 `k=[0,0,0]` 轴段；没有附件记录通过非零相对移位恢复为 5000 nm。
-
-| Shift Type（UNIQUE 候选） | Count |
-|---|---:|
-| No Shift | 168 |
-| Single-axis | 0 |
-| Two-axis | 0 |
-| Three-axis | 0 |
-
-| Group | 1 Piece | 2 Piece | 3 Piece | 4 Piece |
+| Group | 1 Piece | 2 Pieces | 3 Pieces | 4 Pieces |
 |---|---:|---:|---:|---:|
-| 1 | 2 | 0 | 0 | 0 |
-| 2 | 11 | 0 | 0 | 0 |
-| 3 | 155 | 0 | 0 | 0 |
+| Group1 | 2 | 7 | 0 | 0 |
+| Group2 | 11 | 22 | 0 | 0 |
+| Group3 | 155 | 292 | 56 | 2 |
+| 合计 | 168 | 321 | 56 | 2 |
 
-上述 Piece 表只描述 168 个 `UNIQUE` 端点记录，不代表完整微构体。人工测试已经验证非零多轴恢复可正确产生 3/4 Piece。
+547 个唯一 Medium 共生成 986 个 GeometryPieces。
 
-### 容差敏感性
+![Piece 数量分布](output/Q1_retained_part/figures/piece_count_distribution.png)
 
-| Tolerance / nm | Group1 U/A/R | Group2 U/A/R | Group3 U/A/R |
-|---:|---:|---:|---:|
-| `1e-6` | 2/0/10 | 11/0/38 | 155/0/380 |
-| `1e-4` | 2/0/10 | 11/0/38 | 155/0/380 |
-| `1e-3` | 2/0/10 | 11/0/38 | 155/0/380 |
-| `1e-2` | 2/0/10 | 11/0/38 | 155/0/380 |
+## Piece 物理图、带电与导通
 
-四档结果完全相同；428 个无解不是默认容差造成的。
+物理规则沿用已验证核心：
 
-## 当前 Q1 结论
+- 同一 Medium 的不同 Piece 不自动建立导电边；
+- Piece 可通过 `computeChargeState` 继承同一 Medium 的 Charged 状态，但 `Charged != Connected`；
+- Piece-Piece 先以轴线距离 `61.8 nm` 广相排除，再由有限平端圆柱 GJK 计算真实实体距离；仅 `d_exact<=1.8 nm` 建边；
+- 禁止用 `axisDistance-60` 作为正式判据；
+- 不同 Medium 之间禁止 minimum image、27 mirrors 或全局周期镜像；
+- 只有 X 的左右表面是电极，Y/Z 只参与周期边界且绝缘。
+
+![带电与导通的区别](output/Q1_retained_part/figures/charge_vs_conduction.png)
+
+## Full Reconstruction Hard Gate 与严格下界
 
 ```text
-ENDPOINT_MODEL_COMPLETE = false
+Q1_MODEL_COMPLETE = false
 ```
 
-27 法与 729 法对全部数据完全一致，说明无解并非漏掉 X1、X2 分别平移或 XYZ 组合。冲突发生在数据模型本身：在“一行两个坐标是同一根完整 5000 nm 介质的两个轴端点”这一限定下，428 行的 27 个相对周期位移均不能满足 5000 nm。
+未知 Medium 不能被丢弃后写成 Non-Conducting。模型不完整时，程序只用 547 个唯一恢复 Medium 建立 `UNIQUE_ONLY_LOWER_BOUND` 图：已有真实 LEFT→RIGHT 路径不会被后续补充 Medium 破坏；没有路径则仍只能写 `Q1_UNRESOLVED`。
 
-因此本轮实验已经完整处理 596/596 行并成功结束，但不对 Group1/2/3 声称最终 `Conducting` 或 BFS 结果。`UNRESOLVED` 不能被写成 `NON_CONDUCTING`，也不能通过跨行组合或改变端点语义来填补。
+| Group | Model Complete | Unique-only Conducting | Final Status |
+|---|---|---|---|
+| Group1 | false | false | `Q1_UNRESOLVED` |
+| Group2 | false | true | `DEFINITELY_CONDUCTING_FROM_UNIQUE_SUBSET` |
+| Group3 | false | true | `DEFINITELY_CONDUCTING_FROM_UNIQUE_SUBSET` |
 
-全部无解 RecordID 列表见 [`q1_endpoint_summary.txt`](output/Q1_endpoint_rebuild/q1_endpoint_summary.txt)；每条记录最接近 5000 nm 的 `k` 和误差见 [`endpoint_reconstruction_audit.csv`](output/Q1_endpoint_rebuild/tables/endpoint_reconstruction_audit.csv)。本次无 `AMBIGUOUS_PERIODIC` 记录。
+下界图中的真实 BFS 路径：
 
-## 论文数据与可复核输出
+```text
+Group2: LEFT -> A2-1 -> A12-1 -> A24-1 -> A10-2 -> RIGHT
+Group3: LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT
+```
 
-- [`endpoint_pair_diagnostics.csv`](output/Q1_endpoint_rebuild/tables/endpoint_pair_diagnostics.csv)：596×729=434,484 个双端点候选；
-- [`endpoint_relative_shift_diagnostics.csv`](output/Q1_endpoint_rebuild/tables/endpoint_relative_shift_diagnostics.csv)：596×27=16,092 个相对位移候选；
-- [`endpoint_enumerator_consistency.csv`](output/Q1_endpoint_rebuild/tables/endpoint_enumerator_consistency.csv)：596 行，全部 `Pass=1`；
-- [`endpoint_reconstruction_audit.csv`](output/Q1_endpoint_rebuild/tables/endpoint_reconstruction_audit.csv)：596 行正式状态、唯一候选、最近 `k` 与误差；
-- [`tolerance_sensitivity.csv`](output/Q1_endpoint_rebuild/tables/tolerance_sensitivity.csv)：四档容差；
-- [`reconstructed_pieces.csv`](output/Q1_endpoint_rebuild/tables/reconstructed_pieces.csv)：168 个唯一端点 Medium 的 Piece 明细；
-- [`piece_count_audit.csv`](output/Q1_endpoint_rebuild/tables/piece_count_audit.csv)：596 行 Piece 状态；
-- [`matlab_q1_endpoint_rebuild.log`](output/Q1_endpoint_rebuild/logs/matlab_q1_endpoint_rebuild.log)：完整 MATLAB 运行日志。
+![Group2 唯一恢复子集下界图](output/Q1_retained_part/figures/q1_group2_unique_subset_network.png)
 
-因为 Endpoint Hard Gate 未通过，本次不生成 `physical_edges.csv`、`charge_state_audit.csv`、`q1_final_results.csv` 或 Group1/2/3 final network，避免把唯一子集误报为完整 Q1 结论。
+![Group3 唯一恢复子集下界图](output/Q1_retained_part/figures/q1_group3_unique_subset_network.png)
+
+## 三组真实恢复案例
+
+以下均为各组首个实际单边界成功记录，所有数值来自 MATLAB 输出。
+
+### Group1 A1（Excel row 3）
+
+```text
+Observed:
+[-5000,-123.595139885209,-413.210770780220]
+-> [-2588.09423943591,263.800242732266,-256.916004757901]
+Lobs=2447.81384794709, Lmiss=2552.18615205291
+
+Recovered Original:
+[-2588.09423943591,263.800242732266,-256.916004757901]
+-> [-7514.74698018023,-527.508669386136,-576.169787379890]
+
+Forward Pieces:
+[-2588.09423943591,263.800242732266,-256.916004757901]
+-> [-5000,-123.595139885209,-413.210770780220], T=[0,0,0]
+[5000,-123.595139885209,-413.210770780220]
+-> [2485.25301981977,-527.508669386136,-576.169787379890], T=[10000,0,0]
+```
+
+### Group2 A1（Excel row 3）
+
+```text
+Observed:
+[-5000,-460.898289390296,-273.232450494890]
+-> [-3512.12594512394,-404.979103320158,-500]
+Lobs=1506.09418033954, Lmiss=3493.90581966046
+
+Recovered Original:
+[-3512.12594512394,-404.979103320158,-500]
+-> [-8451.63794343944,-590.622162034890,252.833230701372]
+
+Forward Pieces:
+[-3512.12594512394,-404.979103320158,-500]
+-> [-5000,-460.898289390296,-273.232450494890], T=[0,0,0]
+[5000,-460.898289390296,-273.232450494890]
+-> [1548.36205656056,-590.622162034890,252.833230701372], T=[10000,0,0]
+```
+
+### Group3 A1（Excel row 3）
+
+```text
+Observed:
+[-5000,-4872.85737033347,2556.81333101074]
+-> [-337.119122805609,-4694.65516508342,3967.32057366848]
+Lobs=4874.80715336013, Lmiss=125.192846639874
+
+Recovered Original:
+[-337.119122805609,-4694.65516508342,3967.32057366848]
+-> [-5119.75024081850,-4877.43388806041,2520.58924842467]
+
+Forward Pieces:
+[-337.119122805609,-4694.65516508342,3967.32057366848]
+-> [-5000,-4872.85737033347,2556.81333101074], T=[0,0,0]
+[5000,-4872.85737033347,2556.81333101074]
+-> [4880.24975918150,-4877.43388806041,2520.58924842467], T=[10000,0,0]
+```
+
+## MATLAB R2016a 验证
+
+新增 13 项 retained-part 测试全部通过，包括 Direct、PDF 单 X 案例、端点反转、正负 X、Y、Z、X→Z 三 Piece、X→Y→Z 四 Piece、同时 XY 无零长度 Piece、无正式边界、双边界歧义和 forward replay 拒绝。
+
+以下原核心回归也全部通过：
+
+- `testBoundaryPieceCounts`
+- `testFourPieceMultiBoundary`
+- `testSegmentSegmentDistance`
+- `testGJKCylinderDistance`
+- `testSameMediumDoesNotCreateConductEdge`
+- `testThreePieceChargeInheritance`
+- `testSplitMediumBridgePath`
+- `testInsulatingFaceDoesNotDirectlyCharge`
+- `testNoGlobalPeriodicFalseEdge`
+
+新增工程的 MATLAB Code Analyzer 结果为 `TOTAL_ISSUES=0`。完整日志见：
+
+- [`matlab_q1_retained_part.log`](output/Q1_retained_part/logs/matlab_q1_retained_part.log)
+- [`q1_retained_test_results.txt`](output/Q1_retained_part/logs/q1_retained_test_results.txt)
+- [`checkcode.log`](output/Q1_retained_part/logs/checkcode.log)
+
+## 可复核输出
+
+- [`q1_retained_summary.txt`](output/Q1_retained_part/q1_retained_summary.txt)：分支、版本、596 条统计、Piece 数量、三组真实案例及 BFS；
+- [`retained_reconstruction_audit.csv`](output/Q1_retained_part/tables/retained_reconstruction_audit.csv)：每行边界、分类、恢复、正向重放与 `±500` 标志；
+- [`reconstructed_pieces.csv`](output/Q1_retained_part/tables/reconstructed_pieces.csv)：唯一恢复 Medium 的全部 GeometryPieces；
+- [`retained_classification_summary.csv`](output/Q1_retained_part/tables/retained_classification_summary.csv)：分类汇总；
+- [`single_boundary_replay_summary.csv`](output/Q1_retained_part/tables/single_boundary_replay_summary.csv)：379 条单边界闭环统计；
+- [`piece_count_audit.csv`](output/Q1_retained_part/tables/piece_count_audit.csv)：1/2/3/4 Piece 分布；
+- [`physical_edges.csv`](output/Q1_retained_part/tables/physical_edges.csv)：有限圆柱真实物理边；
+- [`charge_state_audit.csv`](output/Q1_retained_part/tables/charge_state_audit.csv)：Direct、几何传播与同 Medium 继承来源；
+- [`q1_results.csv`](output/Q1_retained_part/tables/q1_results.csv)：Hard Gate、下界图与最终允许使用的状态。
+
+本分支至此停止，不引入“附件可能是平移后的越界部分”第二假设，也不开始 Q2/Q3/Q4。

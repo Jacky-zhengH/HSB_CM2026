@@ -1,0 +1,45 @@
+Q1 RETAINED ORIGINAL PART HYPOTHESIS
+Branch=q1-retained-part-rebuild
+BaseCommit=3924096dee6179646832da725ab74c71200b8039
+MATLABVersion=9.0.0.341360 (R2016a)
+Records=596
+
+TOTAL Records=596 Direct5000=168 SingleBoundaryShort=379 SingleBoundaryRecovered=379 SingleBoundaryReplayFailed=0 TwoBoundaryShort=30 NoBoundaryShort=19 HasAbs500=28 NoBoundaryHasAbs500=19 Unique=547 Ambiguous=30 Unresolved=19 Invalid=0
+TOTAL PieceCounts 1=168 2=321 3=56 4=2 TotalPieces=986
+Group1 Records=12 Direct5000=2 SingleBoundaryShort=7 SingleBoundaryRecovered=7 SingleBoundaryReplayFailed=0 TwoBoundaryShort=0 NoBoundaryShort=3 HasAbs500=5 NoBoundaryHasAbs500=3 Unique=9 Ambiguous=0 Unresolved=3 Invalid=0
+Group1 PieceCounts 1=2 2=7 3=0 4=0 TotalPieces=16
+Group2 Records=49 Direct5000=11 SingleBoundaryShort=22 SingleBoundaryRecovered=22 SingleBoundaryReplayFailed=0 TwoBoundaryShort=0 NoBoundaryShort=16 HasAbs500=23 NoBoundaryHasAbs500=16 Unique=33 Ambiguous=0 Unresolved=16 Invalid=0
+Group2 PieceCounts 1=11 2=22 3=0 4=0 TotalPieces=55
+Group3 Records=535 Direct5000=155 SingleBoundaryShort=350 SingleBoundaryRecovered=350 SingleBoundaryReplayFailed=0 TwoBoundaryShort=30 NoBoundaryShort=0 HasAbs500=0 NoBoundaryHasAbs500=0 Unique=505 Ambiguous=30 Unresolved=0 Invalid=0
+Group3 PieceCounts 1=155 2=292 3=56 4=2 TotalPieces=915
+
+Q1ModelComplete=0
+Group1 UniqueOnlyConducting=0 FinalStatus=Q1_UNRESOLVED
+Group1 BFS=
+Group2 UniqueOnlyConducting=1 FinalStatus=DEFINITELY_CONDUCTING_FROM_UNIQUE_SUBSET
+Group2 BFS=LEFT -> A2-1 -> A12-1 -> A24-1 -> A10-2 -> RIGHT
+Group3 UniqueOnlyConducting=1 FinalStatus=DEFINITELY_CONDUCTING_FROM_UNIQUE_SUBSET
+Group3 BFS=LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT
+
+REAL SINGLE-BOUNDARY REPLAY EXAMPLES
+Group1 A1 ExcelRow=3
+Observed=[-5000 -123.595139885209 -413.21077078022] -> [-2588.09423943591 263.800242732266 -256.916004757901]
+Lobs=2447.81384794709 Lmiss=2552.18615205291
+RecoveredOriginal=[-2588.09423943591 263.800242732266 -256.916004757901] -> [-7514.74698018023 -527.508669386136 -576.16978737989]
+BoundarySequence=X ForwardPieceCount=2
+  P1 [-2588.09423943591 263.800242732266 -256.916004757901] -> [-5000 -123.595139885209 -413.21077078022] Translation=[-0 -0 -0]
+  P2 [5000 -123.595139885209 -413.21077078022] -> [2485.25301981977 -527.508669386136 -576.16978737989] Translation=[10000 -0 -0]
+Group2 A1 ExcelRow=3
+Observed=[-5000 -460.898289390296 -273.23245049489] -> [-3512.12594512394 -404.979103320158 -500]
+Lobs=1506.09418033954 Lmiss=3493.90581966046
+RecoveredOriginal=[-3512.12594512394 -404.979103320158 -500] -> [-8451.63794343944 -590.62216203489 252.833230701372]
+BoundarySequence=X ForwardPieceCount=2
+  P1 [-3512.12594512394 -404.979103320158 -500] -> [-5000 -460.898289390296 -273.23245049489] Translation=[-0 -0 -0]
+  P2 [5000 -460.898289390296 -273.23245049489] -> [1548.36205656056 -590.62216203489 252.833230701372] Translation=[10000 -0 -0]
+Group3 A1 ExcelRow=3
+Observed=[-5000 -4872.85737033347 2556.81333101074] -> [-337.119122805609 -4694.65516508342 3967.32057366848]
+Lobs=4874.80715336013 Lmiss=125.192846639874
+RecoveredOriginal=[-337.119122805609 -4694.65516508342 3967.32057366848] -> [-5119.7502408185 -4877.43388806041 2520.58924842467]
+BoundarySequence=X ForwardPieceCount=2
+  P1 [-337.119122805609 -4694.65516508342 3967.32057366848] -> [-5000 -4872.85737033347 2556.81333101074] Translation=[-0 -0 -0]
+  P2 [5000 -4872.85737033347 2556.81333101074] -> [4880.2497591815 -4877.43388806041 2520.58924842467] Translation=[10000 -0 -0]

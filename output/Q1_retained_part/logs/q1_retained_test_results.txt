@@ -1,0 +1,37 @@
+CASE 1 DIRECT_FULL PASS=1
+CASE 2 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 3 endpoint reversal is physically equivalent PASS=1
+CASE 4 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 5 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 6 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 7 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 8 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 9 RETAINED_SINGLE_BOUNDARY_UNIQUE PASS=1
+CASE 10 simultaneous XY has no zero-length Piece PASS=1
+CASE 11 UNRESOLVED_NO_FORMAL_BOUNDARY PASS=1
+CASE 12 AMBIGUOUS_TWO_BOUNDARY_RETAINED PASS=1
+CASE 13 invalid observed placement fails zero-translation replay PASS=1
+1-Piece boundary PASS=1
+2-Piece boundary PASS=1
+3-Piece X>Z boundary PASS=1
+Simultaneous XY boundary has no zero-length Piece PASS=1
+Simultaneous XYZ boundary has no zero-length Piece PASS=1
+4-Piece X>Y>Z boundary PASS=1
+Segment CASE 1 (相交): d=0 expected=0 PASS=1
+Segment CASE 2 (平行): d=3 expected=3 PASS=1
+Segment CASE 3 (异面): d=2.2360679775 expected=2.2360679775 PASS=1
+Segment CASE 4 (端点最�?): d=2.82842712475 expected=2.82842712475 PASS=1
+Segment CASE 5 (重合): d=0 expected=0 PASS=1
+GJK CASE 1 (平行侧面间距1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (共轴平端间距50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (真实相交): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (垂直交叉): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (交换对称�?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+same-Medium no conduct edge: PieceCharged=[1 1], PieceEdge=0 Conducting=0 PASS=1
+three-Piece charge inheritance: PieceCount=3 Inherited=[1 1] Conducting=0 PASS=1
+split-Medium real bridge CONDUCTING PASS=1
+broken bridge NON_CONDUCTING while every Piece is Charged PASS=1
+insulating Z face no direct charge PASS=1
+Z-boundary sibling charged only by same-Medium inheritance PASS=1
+no global periodic false edge PASS=1
