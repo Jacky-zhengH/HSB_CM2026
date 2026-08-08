@@ -1,0 +1,15 @@
+ 
+要开始，请键入以下项之一: helpwin、helpdesk 或 demo。
+有关产品信息，请访问 www.mathworks.com。
+ 
+D:\HSMC2026\A_Q1_MATLAB\scripts\run_q1_endpoint_rebuild.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\canonicalizeWrappedGeometry.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\enumerateEndpointImagePairs.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\forwardValidateEndpointCandidate.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\generateEndpointRebuildFigures.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\unwrapMediumEndpoints.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\writeEndpointRebuildTables.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\writeEndpointRebuildSummary.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\src\writeExcelSchemaAudit.m issues=0
+D:\HSMC2026\A_Q1_MATLAB\tests\testEndpointReverseReconstruction.m issues=0
+TOTAL_ISSUES=0

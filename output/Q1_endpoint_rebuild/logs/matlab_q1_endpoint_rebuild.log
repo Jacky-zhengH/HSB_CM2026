@@ -1,0 +1,63 @@
+ 
+要开始，请键入以下项之一: helpwin、helpdesk 或 demo。
+有关产品信息，请访问 www.mathworks.com。
+ 
+[1/14] Setup complete on q1-endpoint-unfold-final.
+[2/14] Reading attachment.xlsx...
+[3/14] Validating Excel schema...
+[4/14] Running endpoint reverse tests...
+[5/14] Endpoint 729/27 artificial consistency is included above.
+[6/14] Running 1/2/3/4 Piece boundary tests...
+[7/14] Running segment and GJK tests...
+GJK CASE 1 (骞宠渚ч潰闂磋窛1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (鍏辫酱骞崇闂磋窛50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (鐪熷疄鐩镐氦): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (鍨傜洿浜ゅ弶): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (浜ゆ崲瀵圭О鎬?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+[8/14] Running Charged/Connected graph tests...
+Excel schema PASS=1
+CASE 1 direct 5000 still checks 27/729 PASS=1
+CASE 2 X1-only image shift PASS=1
+CASE 3 X2-only image shift PASS=1
+CASE 4 X1-X and X2-Z shifts PASS=1
+CASE 5 simultaneous X/Z inverse then X>Z 3 Pieces PASS=1
+CASE 6 XYZ inverse shift PASS=1
+CASE 7 explicit image expressions physically deduplicate PASS=1
+CASE 8 distinct physical candidates remain ambiguous PASS=1
+CASE 9 invalid endpoints remain unresolved PASS=1
+CASE 10 endpoint reversal invariance PASS=1
+1-Piece boundary PASS=1
+2-Piece boundary PASS=1
+3-Piece X>Z boundary PASS=1
+Simultaneous XY boundary has no zero-length Piece PASS=1
+Simultaneous XYZ boundary has no zero-length Piece PASS=1
+4-Piece X>Y>Z boundary PASS=1
+Segment CASE 1 (鐩镐氦): d=0 expected=0 PASS=1
+Segment CASE 2 (骞宠): d=3 expected=3 PASS=1
+Segment CASE 3 (寮傞潰): d=2.2360679775 expected=2.2360679775 PASS=1
+Segment CASE 4 (绔偣鏈�杩?): d=2.82842712475 expected=2.82842712475 PASS=1
+Segment CASE 5 (閲嶅悎): d=0 expected=0 PASS=1
+GJK CASE 1 (骞宠渚ч潰闂磋窛1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (鍏辫酱骞崇闂磋窛50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (鐪熷疄鐩镐氦): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (鍨傜洿浜ゅ弶): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (浜ゆ崲瀵圭О鎬?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+same-Medium no conduct edge: PieceCharged=[1 1], PieceEdge=0 Conducting=0 PASS=1
+three-Piece charge inheritance: PieceCount=3 Inherited=[1 1] Conducting=0 PASS=1
+split-Medium real bridge CONDUCTING PASS=1
+broken bridge NON_CONDUCTING while every Piece is Charged PASS=1
+insulating Z face no direct charge PASS=1
+Z-boundary sibling charged only by same-Medium inheritance PASS=1
+no global periodic false edge PASS=1
+[9/14] Processing all 596 rows with both 27 and 729 searches...
+  Group1 processed: 12/12.
+  Group2 processed: 49/49.
+  Group3 processed: 535/535.
+[10/14] Running tolerance sensitivity...
+[11/14] Building UNIQUE endpoint GeometryPieces...
+[12/14] Writing complete endpoint diagnostics...
+[13/14] Applying endpoint completeness hard gate...
+[14/14] Generating figures and summary...
+Q1 ENDPOINT REBUILD COMPLETE
