@@ -1,5 +1,5 @@
 function [found, path] = findBFSPath(adjacency, startNode, goalNode)
-%FINDBFSPATH Legacy-compatible breadth-first path search.
+%FINDBFSPATH Breadth-first path search for the formal Piece graph.
 
 nodeCount = numel(adjacency);
 visited = false(nodeCount, 1);

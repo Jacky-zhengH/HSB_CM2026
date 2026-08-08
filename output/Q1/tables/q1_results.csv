@@ -1,0 +1,4 @@
+Group,Records,UniqueReconstruction,Ambiguous,Unresolved,PieceCount,ChargedMediumCount,ChargedPieceCount,Q1Status,BFSPath
+1,12,9,0,3,16,8,15,UNRESOLVED_MODEL,
+2,49,33,0,16,55,28,50,UNRESOLVED_MODEL,
+3,535,505,30,0,915,288,582,UNRESOLVED_MODEL,

@@ -1,0 +1,61 @@
+ 
+Òª¿ªÊ¼£¬Çë¼üÈëÒÔÏÂÏîÖ®Ò»: helpwin¡¢helpdesk »ò demo¡£
+ÓÐ¹Ø²úÆ·ÐÅÏ¢£¬Çë·ÃÎÊ www.mathworks.com¡£
+ 
+[1/9] Loading attachment and checking one-row-one-Medium invariants...
+[2/9] Running raw-coordinate and length sanity checks...
+[3/9] Applying the unified observed-Medium reconstruction...
+[4/9] Running geometry, boundary, charge, and graph gate tests...
+GJK CASE 1 (å¹³è¡Œä¾§é¢é—´è·1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (å…±è½´å¹³ç«¯é—´è·50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (çœŸå®žç›¸äº¤): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (åž‚ç›´äº¤å‰): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (äº¤æ¢å¯¹ç§°æ€?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+Segment distance tests PASS=1
+Segment CASE 1 (ç›¸äº¤): d=0 expected=0 PASS=1
+Segment CASE 2 (å¹³è¡Œ): d=3 expected=3 PASS=1
+Segment CASE 3 (å¼‚é¢): d=2.2360679775 expected=2.2360679775 PASS=1
+Segment CASE 4 (ç«¯ç‚¹æœ€è¿?): d=2.82842712475 expected=2.82842712475 PASS=1
+Segment CASE 5 (é‡åˆ): d=0 expected=0 PASS=1
+GJK tests PASS=1
+GJK CASE 1 (å¹³è¡Œä¾§é¢é—´è·1nm): d=1 expected=1 iter=1 converged=1 PASS=1
+GJK CASE 2 (å…±è½´å¹³ç«¯é—´è·50nm): d=50 expected=50 iter=1 converged=1 PASS=1
+GJK CASE 3 (çœŸå®žç›¸äº¤): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 4 (åž‚ç›´äº¤å‰): d=0 expected=0 iter=2 converged=1 PASS=1
+GJK CASE 5 (äº¤æ¢å¯¹ç§°æ€?): dAB=1 dBA=1 PASS=1
+GJK ALL TESTS PASSED=1
+Direct 5000 reconstruction PASS=1
+27-case endpoint unwrap including simultaneous X/Y PASS=1
+Single-boundary Piece reconstruction PASS=1
+Middle GeometryPiece remains AMBIGUOUS candidates=3 PASS=1
+No-nearest-fallback UNRESOLVED PASS=1
+1-Piece boundary PASS=1
+2-Piece boundary PASS=1
+3-Piece boundary PASS=1
+Simultaneous multi-axis boundary has no zero-length Piece PASS=1
+4-Piece X>Y>Z boundary PASS=1
+same-Medium no conduct edge: PieceCharged=[1 1], PieceEdge=0 Conducting=0 PASS=1
+three-Piece charge inheritance: PieceCount=3 Inherited=[1 1] Conducting=0 PASS=1
+split-Medium real bridge CONDUCTING PASS=1
+broken bridge NON_CONDUCTING while every Piece is Charged PASS=1
+insulating Z face no direct charge PASS=1
+Z-boundary sibling charged only by same-Medium inheritance PASS=1
+no global periodic false edge PASS=1
+[5/9] Building only uniquely reconstructed GeometryPieces...
+[6/9] Building real Piece-level physical graphs and Charge State...
+[7/9] Writing formal Q1 tables and paper figures...
+[8/9] Writing concise Q1 summary...
+HSMC 2026 A - Formal Q1 Validation
+MATLAB 9.0.0.341360 (R2016a)
+Box=10000 nm, MediumLength=5000 nm, Radius=30 nm, d0=1.8 nm
+One Excel row = one independent PhysicalMedium.
+Charge State never changes Piece-level physical adjacency.
+Charge State tests PASS=1
+Physical graph tests PASS=1
+Group1 Records=12 Unique=9 Ambiguous=0 Unresolved=3 PieceMediumCounts=[1:2 2:7 3:0 4:0] TotalPieces=16 Q1=UNRESOLVED_MODEL
+Group2 Records=49 Unique=33 Ambiguous=0 Unresolved=16 PieceMediumCounts=[1:11 2:22 3:0 4:0] TotalPieces=55 Q1=UNRESOLVED_MODEL
+Group3 Records=535 Unique=505 Ambiguous=30 Unresolved=0 PieceMediumCounts=[1:155 2:292 3:56 4:2] TotalPieces=915 Q1=UNRESOLVED_MODEL
+UNRESOLVED_MODEL is not NON_CONDUCTING; no candidate was forced.
+[9/9] Verifying the formal output contract...
+Formal Q1 output verification passed: 15 files.

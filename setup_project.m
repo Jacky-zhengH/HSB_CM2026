@@ -1,5 +1,5 @@
 function projectRoot = setup_project()
-%SETUP_PROJECT Add this V0 audit project's folders to the current session.
+%SETUP_PROJECT Add the formal Q1 validation folders to this MATLAB session.
 %   This function does not modify the permanent MATLAB path.
 
 projectRoot = fileparts(mfilename('fullpath'));

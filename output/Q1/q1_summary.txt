@@ -1,0 +1,11 @@
+HSMC 2026 A - Formal Q1 Validation
+MATLAB 9.0.0.341360 (R2016a)
+Box=10000 nm, MediumLength=5000 nm, Radius=30 nm, d0=1.8 nm
+One Excel row = one independent PhysicalMedium.
+Charge State never changes Piece-level physical adjacency.
+Charge State tests PASS=1
+Physical graph tests PASS=1
+Group1 Records=12 Unique=9 Ambiguous=0 Unresolved=3 PieceMediumCounts=[1:2 2:7 3:0 4:0] TotalPieces=16 Q1=UNRESOLVED_MODEL
+Group2 Records=49 Unique=33 Ambiguous=0 Unresolved=16 PieceMediumCounts=[1:11 2:22 3:0 4:0] TotalPieces=55 Q1=UNRESOLVED_MODEL
+Group3 Records=535 Unique=505 Ambiguous=30 Unresolved=0 PieceMediumCounts=[1:155 2:292 3:56 4:2] TotalPieces=915 Q1=UNRESOLVED_MODEL
+UNRESOLVED_MODEL is not NON_CONDUCTING; no candidate was forced.
