@@ -1,6 +1,7 @@
 %RUN_DATA_AUDIT V0 data audit for HSMC 2026 Problem A, Question 1.
 % MATLAB R2016a-compatible script. This script does not merge records or
 % determine electrical conduction.
+% LEGACY_DIAGNOSTIC_ONLY: direction/pair candidates are not V2 Q1 nodes.
 
 clearvars;
 close all;

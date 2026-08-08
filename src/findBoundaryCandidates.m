@@ -1,6 +1,7 @@
 function [contacts, endpointCounts, candidates] = findBoundaryCandidates( ...
         groupIndex, analysis, canonicalDirections, cfg)
 %FINDBOUNDARYCANDIDATES Diagnose boundary contacts and periodic pairings.
+% LEGACY_DIAGNOSTIC_ONLY: V2 never merges different Excel rows.
 %   Translation is the vector applied to RecordB's endpoint so it overlaps
 %   RecordA's endpoint. Candidates are evidence only; records are not merged.
 

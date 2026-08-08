@@ -1,6 +1,7 @@
 function [familyID, representatives, familyCounts, assignmentError] = ...
         clusterDirections(canonicalDirections, tolerance)
 %CLUSTERDIRECTIONS Deterministically group nearly equal canonical axes.
+% LEGACY_DIAGNOSTIC_ONLY: V2 never merges rows by DirectionFamily.
 %   The first record encountered in a family remains its representative.
 
 if size(canonicalDirections, 2) ~= 3

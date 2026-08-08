@@ -2,156 +2,149 @@
 
 ## 环境与运行
 
-- MATLAB R2016a（9.0.0.341360）
-- Windows
-- 原始数据：`data/attachment.xlsx`
-- 原始数据只读，程序不会修改附件。
-
-在工程根目录执行：
+- MATLAB R2016a（9.0.0.341360），Windows。
+- 原始附件：`data/attachment.xlsx`，程序只读，不修改原文件。
+- 当前正式入口：
 
 ```matlab
 setup_project
-run('scripts/run_data_audit.m')
-run('scripts/run_v1_q1_validation.m')
-run('scripts/run_v11_paper_polish.m')
+run('scripts/run_v2_q1_rebuild.m')
 ```
 
-`run_data_audit.m` 是 V0 唯一入口；`run_v1_q1_validation.m` 是 V1 唯一入口。
-V1 输出全部位于 `output/V1/`，不会覆盖 V0 的原始输出。
+V2 输出统一位于 `output/Q1_rebuild/`。`run_data_audit.m` 仅保留为 V0 历史数据
+诊断入口，其中 DirectionFamily 和跨行 Boundary Pair Candidate 均标记为
+`LEGACY_DIAGNOSTIC_ONLY`，不参与当前 Q1 求解。
 
-## 核心数据概念
+## Q1 模型修正：一行一介质原则
 
-- **GeometryPiece**：附件 Excel 中的一条有限轴段记录。
-- **PhysicalMedium**：一个真正的介质 A，可拥有一个或多个 GeometryPiece。
-- V1 图论节点是 PhysicalMedium，不是 GeometryPiece。
+题目规定介质 A 是高度固定为 5000 nm、半径为 30 nm 的有限平端直圆柱；附件说明
+明确写明“每一行表示一个介质 A”。因此 Excel 第 i 行永久对应独立介质 `Ai`，不同
+Excel 行绝不共享 MediumID，也不再允许通过方向相同、相对边界端点匹配或 ±10000 nm
+平移把多行合并为一个 Parent。
 
-## V0 数据审查结果
+一根 `Ai` 经边界规则可在盒内表现为 `Ai-1`、`Ai-2` 等多个 GeometryPiece。电学图
+节点是 GeometryPiece，不是 Medium/Parent。即使两个 Piece 同属 `Ai`，也不会自动
+建立隐藏导线；只有当前欧氏空间中的真实有限圆柱距离不超过 1.8 nm 才建边。只有
+`x=-5000` 和 `x=+5000` 是电极，Y/Z 四个面只参与几何边界处理。
 
-### 目的与读取方式
+## V1 旧模型为何废弃
 
-V0 用于确认附件的真实组织形式，不合并记录、不判断导通。程序先用 `xlsfinfo`
-取得真实工作表“组1、组2、组3”，再用 `xlsread` 自动识别六列有限坐标，保留
-`RecordID` 和 `OriginalExcelRow`，实际通过 12/49/535 条记录硬校验。
+旧 V1 曾根据跨行边界匹配和 DirectionFamily 把不同 Excel 行合并为一个
+PhysicalMedium，并把同一 Parent 的多个片段当作一个电学节点。重新审查题目后，
+该假设与“一行表示一个介质 A”直接冲突，也可能产生横跨计算域的隐藏电学连接。
 
-### 诊断量
+因此旧 M1/M2 Parent 模型及其 T/T/T 结论已废弃，不用于论文最终结论；相关主动
+求解代码和 Parent 导通论文图已删除。Git 历史仍可追溯旧版本。
 
-- `SegmentLength` 是每条 GeometryPiece 的有限轴段长度。
-- `DirectionFamily` 将方向相同或高度一致的规范化轴向归为一族；它本身不表示
-  这些记录已经属于同一个 PhysicalMedium。
-- `Boundary Pair Candidate` 依据“方向一致 + 端点位于相对边界 + 对一个端点施加
-  ±10000 nm 平移后匹配”得到，是高可信候选关系，但不是正式 ParentID。
+## 当前三种数据解释
 
-| 组别 | Records | Full-length | Short | DirectionFamilies | Boundary Pair Candidates |
-|---|---:|---:|---:|---:|---:|
-| Group 1 | 12 | 2 | 10 | 7 | 3 |
-| Group 2 | 49 | 11 | 38 | 28 | 10 |
-| Group 3 | 535 | 155 | 380 | 354 | 178 |
+### R0：Raw Record Baseline
 
-Group 3 的端点边界接触数为 XMin 91、XMax 90、YMin 61、YMax 57、ZMin 51、
-ZMax 60。
+直接把附件 P1→P2 当作轴段，不恢复边界编码。R0 可以完整运行，但大量轴长小于
+5000 nm，与固定尺寸矛盾，因此只作为说明“必须解释附件编码”的基线/反例模型。
 
-### 当前解释与限制
+### R1：同一行端点周期反变换
 
-V0 还没有直接重构 PhysicalMedium，也没有给每条 Record 正式生成 ParentID。
-`SegmentLength < 5000` 只能说明该记录可能受到边界处理影响，不能单独证明它一定
-属于越界介质。V0 不补长轴段、不擅自合并记录，也不输出导通结论。
+固定 P1，仅枚举 `P2 + 10000*[kx,ky,kz]`，其中各 k 分量属于 `{-1,0,1}`。只接受
+长度在固定容差内等于 5000 nm 的候选；没有候选时绝不选择“最接近”的平移。
 
-## 与 Python 正式求解程序的当前差异
+### R2：同一行一般边界重构
 
-当前 Python `solve.py` 在 Q1 中直接读取每一行附件记录，没有先做 Parent
-Reconstruction；其距离算法当前对任意不同介质使用 ±10000 周期镜像。MATLAB V1
-不采用全局周期镜像，而通过显式 `GeometryPiece -> PhysicalMedium` Parent 映射表达
-边界关系。这里仅记录两种模型实现差异，不预先认定哪种附件解释唯一正确。
+对短记录分别尝试沿当前轴向在 P2 之后补齐、或在 P1 之前补齐至 5000 nm。每个候选
+必须经过参数化正向周期边界处理，并重新生成附件中的当前片段才有效。两个候选都有效
+时标为 `AMBIGUOUS`，都无效时标为 `UNRESOLVED`；不借用其他行补信息。
 
-## V1 方法
+`wrapSegmentToBox.m` 通过参数 `P(t)` 求所有 X/Y/Z 周期边界交点，再按各参数区间的
+中点确定整数格平移，支持单轴、双轴及连续多方向越界，不使用端点硬裁剪。
 
-V1 同时保留三种敏感性模型：
+## V2 实际数据辨识结果
 
-- M0：每条 Record 独立，`ParentID = RecordID`。
-- M1：仅使用 V0 `boundary_pair_candidates.csv` 的候选边，通过并查集合并 Parent。
-- M2：同一 DirectionFamily 暂归为同一 Parent；这是积极的敏感性模型，不是唯一解释。
+### R0 原始长度
 
-GeometryPiece 对先用有限线段距离和 61.8 nm 阈值做 broad phase，再用有限平端圆柱
-support mapping 与 GJK 求真实表面距离。算法没有把圆柱实现成 capsule，也没有创建
-任何全局周期几何镜像。左右电极仅为 `x=-5000` 和 `x=+5000`，导通图使用邻接表和
-手写 BFS。
+| 组别 | Records | RawLength≈5000 | RawLength<5000 |
+|---|---:|---:|---:|
+| Group 1 | 12 | 2 | 10 |
+| Group 2 | 49 | 11 | 38 |
+| Group 3 | 535 | 155 | 380 |
 
-## V1 实际结果
+### R1 端点反变换
 
-MATLAB R2016a 已完成端到端运行。有限线段 5 项测试和 GJK 5 项测试全部通过；其中
-共轴平端间距 50 nm 的测试返回 50 nm，避免了 capsule 的假重叠。
+| 组别 | DIRECT_5000 | UNIQUE_ENDPOINT_UNWRAP | NO_ENDPOINT_UNWRAP | AMBIGUOUS |
+|---|---:|---:|---:|---:|
+| Group 1 | 2 | 0 | 10 | 0 |
+| Group 2 | 11 | 0 | 38 | 0 |
+| Group 3 | 155 | 0 | 380 | 0 |
 
-| 组别 | M0 Parents | M1 Parents | M2 Parents | M0 导通 | M1 导通 | M2 导通 |
-|---|---:|---:|---:|---|---|---|
-| Group 1 | 12 | 9 | 7 | 否 | 是 | 是 |
-| Group 2 | 49 | 39 | 28 | 是 | 是 | 是 |
-| Group 3 | 535 | 357 | 354 | 是 | 是 | 是 |
+实际结果说明：单纯认为某一个附件端点被 ±10000 nm 平移，不足以解释大量短记录，
+R1 不能作为附件的完整解释。
 
-M1 的代表 BFS 路径为：
+### R2 同一行一般重构
 
-- Group 1：`LEFT -> P1 -> RIGHT`
-- Group 2：`LEFT -> P1 -> RIGHT`
-- Group 3：`LEFT -> P2 -> RIGHT`
+| 组别 | UNIQUE_RECONSTRUCTION | UNRESOLVED | AMBIGUOUS |
+|---|---:|---:|---:|
+| Group 1 | 9 | 3 | 0 |
+| Group 2 | 33 | 16 | 0 |
+| Group 3 | 505 | 0 | 30 |
 
-M0 中 Group 2 的路径为 `LEFT -> P2 -> P12 -> P24 -> P39 -> RIGHT`；Group 3
-的路径为 `LEFT -> P63 -> P264 -> P216 -> P351 -> RIGHT`。M1/M2 三组均存在一个
-Parent 同时连接 LEFT 和 RIGHT。
+Group 1 未解析介质为 A6、A7、A11；Group 2 有 16 条未解析；Group 3 虽全部存在候选，
+但其中 30 条的前延伸/后延伸假设都能正向重现附件片段，不能唯一选择。
 
-DirectionFamily 总轴长接近 5000 nm 的族数分别为 5/7、24/28、305/354。程序只记录
-其完整性，不对不等于 5000 nm 的 family 人工补长。
+这证明在“一行一介质”的约束下，仅由附件两个端点仍不足以唯一恢复全部 5000 nm
+原始圆柱。这是数据解释结论，不是程序失败。
 
-Capsule 与 GJK 产生 3 条“模型-几何对”判断分歧，对应 1 个唯一 GeometryPiece 对：
-Group 3 的 Piece 208/225。其轴距约 49.4488 nm，capsule 距离约 -10.5512 nm，有限
-平端圆柱 GJK 距离约 11.9342 nm，因此 capsule 判断导通而精确模型判断不导通。
-该差异没有改变本次九个模型的最终导通布尔结果。
+## 当前 Q1 状态
 
-当前仍不能仅凭敏感性结果确定 M0、M1、M2 中哪一种是附件唯一正确的物理解释；
-尤其 M2 的同方向合并是假设上界，M1 也只采用 V0 可识别的相对边界端点关系。
+| 组别 | R0 | R1 | R2 |
+|---|---|---|---|
+| Group 1 | NON_CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
+| Group 2 | CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
+| Group 3 | CONDUCTING | UNRESOLVED_MODEL | UNRESOLVED_MODEL |
 
-## V1.1 论文素材收尾
+R0 的真实 Piece-level BFS 路径为：
 
-V1.1 不修改核心数学模型、Parent 重构、GJK 距离或导通结论。论文正文暂采用 M1
-作为主模型，M2 作为边界解释敏感性分析；M0 的三组结论为 F/T/T，M1 和 M2 均为
-T/T/T。
+- Group 1：无路径。
+- Group 2：`LEFT -> A2-1 -> A12-1 -> A24-1 -> A39-1 -> RIGHT`。
+- Group 3：`LEFT -> A63-1 -> A264-1 -> A216-1 -> A351-1 -> RIGHT`。
 
-Group 1 的 M1 三维图不再使用 BFS 邻接顺序默认得到的 P1，而在所有同时连接 LEFT
-和 RIGHT 的 DirectParent 中选择 `TotalAxisLength` 最接近 5000 nm 的 Parent。实际
-选择为 P3，包含 Record 3、9，总轴长为 5000 nm；图中已标注 ParentID、RecordIDs
-和 TotalAxisLength。
+R1/R2 的 `UNRESOLVED_MODEL` 表示数据解释不完整，绝不等价于 `NON_CONDUCTING`，
+因此当前不能把 R0 的布尔结果直接当作固定 5000 nm 介质模型的最终 Q1 答案。
 
-边界重构示例图增加了中文图例、RecordID、实际 Translation Vector 和周期平移箭头。
-新增 `capsule_vs_gjk_example.png`，对唯一实际误判 GeometryPiece 对 Group 3 Piece
-208/225 同时展示全局几何和最近区域放大图：AxisDistance 约 49.448786 nm，
-CapsuleDistance 约 -10.551214 nm，ExactDistance 约 11.934211 nm，大于 1.8 nm
-阈值。因此 Capsule 是 False Positive，真实有限平端圆柱不导通。唯一误判是指 1 个
-GeometryPiece 对；它在 M0/M1/M2 比较表中对应 3 条模型记录。
+## 无隐藏导线验证
 
-Group 3 中 V0 的 XMin 端点接触为 91 条，而 V1 的有限圆柱 LEFT 接触为 92 条。额外
-介质是 Record 92：轴端点到左平面的距离约 4.081611 nm，圆柱半径在 x 方向的投影约
-29.228900 nm，有限圆柱实体到平面的距离为 0 nm。差异来自 30 nm 有限半径，而不是
-新增了一个位于 `x=-5000` 的轴端点。完整数值保存在
-`output/V1/logs/electrode_contact_difference.txt`。
+`testNoHiddenParentConnection.m` 构造同属 A1 的两个 Piece：A1-1 接触 LEFT，A1-2
+接触 RIGHT，但两者在盒内相距很远。测试确认两 Piece 之间没有电学边，LEFT 无法到达
+RIGHT，结果为 NON_CONDUCTING。该测试已在 MATLAB R2016a 中通过。
+
+## 附件坐标异常记录
+
+题面边界仍固定为 ±5000 nm，不把 ±500 当边界。附件精确数值统计为：Group 1 中
+±500 共 6 个、±5000 共 7 个；Group 2 中 ±500 共 24 个、±5000 共 22 个；Group 3
+中 ±500 为 0、±5000 共 410 个。该特征仅作事实记录，需谨慎解释。
+
+## 当前尚未确定的问题
+
+附件没有说明短记录的两个端点究竟对应完整介质端点、单个截断 Piece 端点，还是其他
+编码。R2 已证明部分行无法重构、部分行存在双候选。除非获得附件生成规则或额外字段，
+不能在不引入额外假设的前提下唯一恢复所有 5000 nm 介质，也不能给 R1/R2 强制输出
+Q1 布尔答案。
 
 ## 论文素材索引
 
-- `output/segment_length_distribution.png`：V0 三组 GeometryPiece 长度分布。
-- `output/V1/figures/direction_family_total_length.png`：方向族总轴长完整性。
-- `output/V1/figures/parent_count_comparison.png`：Record、M1 Parent、M2 Parent 数量比较。
-- `output/V1/figures/boundary_reconstruction_examples.png`：三组周期边界截断与平移示例。
-- `output/V1/figures/q1_model_comparison.png`：九种组别/Parent 模型的导通敏感性矩阵。
-- `output/V1/figures/q1_group1_3d.png`：Group 1 的 M1 三维导通路径。
-- `output/V1/figures/q1_group2_3d.png`：Group 2 的 M1 三维导通路径。
-- `output/V1/figures/q1_group3_3d.png`：Group 3 的 M1 三维导通路径。
-- `output/V1/figures/capsule_vs_gjk_example.png`：Capsule 假阳性与有限圆柱 GJK 对比。
-- `output/V1/tables/q1_results_for_paper.csv`：论文可直接引用的简洁结果表。
-- `output/V1/q1_results.xlsx`：Summary、ParentReconstruction、ModelComparison、
-  CapsuleVsGJK 四类结果的 Excel 汇总。
-- `output/V1/logs/electrode_contact_difference.txt`：Group 3 第 92 个左电极接触的半径来源审查。
+- `raw_length_distribution.png`：展示原始轴长与 5000 nm 理论值的矛盾。
+- `r1_endpoint_unwrap_success.png`：说明单端点周期反变换不足以解释短记录。
+- `row_reconstruction_examples.png`：展示 R1 成功、R2 补救和 R2 未解析实例。
+- `no_hidden_connection_demo.png`：解释同 MediumID 不产生隐藏电学边。
+- `q1_group*_piece_network.png`：R0 可完整计算时的 Piece-level 网络和真实 BFS 路径。
+- `q1_model_results.csv`：R0/R1/R2 的解析完整性与导通状态汇总。
+- `capsule_vs_gjk_example.png`：保留的有限平端圆柱 GJK 与 capsule 假阳性素材。
+
+前六项位于 `output/Q1_rebuild/figures/` 或 `output/Q1_rebuild/tables/`；最后一项保留于
+`output/V1/figures/`，其几何结论不依赖旧 Parent 模型。
 
 ## 版本记录
 
-- 2026-08-07 V0：完成附件数据审查。
-- 2026-08-07 V1：完成边界重构敏感性、有限圆柱 GJK、Q1 图搜索及论文素材输出。
-- 2026-08-07 V1.1：完成主模型论文路径选择、边界图注释、Capsule/GJK 假阳性图和电极接触差异审查。
+- 2026-08-07 V0：完成附件原始数据审查。
+- 2026-08-07 V1/V1.1：曾进行跨行 Parent 敏感性分析，现已废弃，不用于正式结论。
+- 2026-08-08 V2-Q1：改为一行一介质、同一行重构和 Piece-level 无隐藏导线模型。
 
-当前没有实现 Q2、Q3、Q4。
+当前未实现 Q2、Q3、Q4。

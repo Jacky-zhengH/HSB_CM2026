@@ -1,0 +1,5 @@
+Coordinate boundary anomaly audit (exact numeric equality)
+The theoretical BOX_HALF remains 5000 nm; +/-500 is not treated as a boundary.
+Group 1: +500=2, -500=4, exact +/-500 total=6; +5000=4, -5000=3, exact +/-5000 total=7
+Group 2: +500=11, -500=13, exact +/-500 total=24; +5000=11, -5000=11, exact +/-5000 total=22
+Group 3: +500=0, -500=0, exact +/-500 total=0; +5000=207, -5000=203, exact +/-5000 total=410
